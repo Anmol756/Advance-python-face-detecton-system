@@ -1,0 +1,19 @@
+# Exclude folders
+venv/
+.git
+.gitignore
+__pycache__/
+_old_app.py
+_old_desktop_app/
+output/
+scratch/
+
+# Exclude python cache files
+*.pyc
+*.pyo
+*.pyd
+
+# Exclude local testing logs
+*.log
+*.txt
+*.py.backup

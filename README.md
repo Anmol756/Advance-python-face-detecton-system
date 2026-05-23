@@ -126,6 +126,42 @@ Open [http://127.0.0.1:5000](http://127.0.0.1:5000) in your web browser.
     *   Username: `professor1`
     *   Password: `profpass`
 
+## 🐳 Docker & Render Cloud Deployment
+
+This project includes a multi-stage `Dockerfile` optimized for CPU and memory usage in resource-restricted environments (like Render's Free tier VM builds).
+
+### 1. Build and Run Locally with Docker
+Ensure Docker Desktop is running on your machine:
+```bash
+# Build the Docker image
+docker build -t smart-attend .
+
+# Run the container (binds to host port 5000)
+docker run -p 5000:5000 smart-attend
+```
+Open [http://127.0.0.1:5000](http://127.0.0.1:5000) in your web browser.
+
+### 2. Deployment Steps on Render
+Render automatically detects and builds the root `Dockerfile`.
+
+1. **Push your repository changes** to GitHub (including the `Dockerfile`, `.dockerignore`, and modified `run.py`).
+2. Log in to [Render](https://render.com) and click **New > Web Service**.
+3. Connect your GitHub repository.
+4. Configure the service:
+   - **Environment/Runtime**: `Docker`
+   - **Branch**: `main`
+5. In **Advanced Options**, define your Environment Variables if custom behaviors are desired:
+   - `FLASK_DEBUG`: `false` (default)
+6. Click **Deploy Web Service**.
+
+> [!IMPORTANT]
+> **Secure Context (HTTPS)**: Browsers restrict camera permissions (`navigator.mediaDevices.getUserMedia`) to secure contexts (`https://` or `localhost`). Since Render deploys web services with a secure HTTPS domain out of the box, the live attendance webcam scanner will work flawlessly.
+
+> [!WARNING]
+> **SQLite File Persistence**: Containers use an ephemeral filesystem. Any new registrations or logs will disappear when the container reboots or redeploys. 
+> *   *For Portfolios*: The container is seeded with the 5 demo students committed in `attendance.db` by default, making it immediately showcase-ready.
+> *   *For Production*: Mount a **Render Persistent Disk** to the `/app` path to preserve changes to `attendance.db` and `known_face_encodings.pkl`, or plug the database logic in [app/extensions.py](file:///c:/Face/Advance-python-face-detecton-system/app/extensions.py) into a cloud database (like Render PostgreSQL).
+
 ---
 
 ## 🔒 Configuration (`config.py`)
@@ -135,3 +171,4 @@ Configurable settings are centralized under `config.py`:
 *   `EYE_AR_THRESH`: Eye aspect ratio liveness threshold (default: `0.3`).
 *   `LIVENESS_SCALE_FACTOR`: Downscaling resolution factor for fast CPU inference (default: `0.25` / 4x speedup).
 *   `COOLDOWN_PERIOD`: Wait time in seconds before logging attendance for the same student twice (default: `30`).
+

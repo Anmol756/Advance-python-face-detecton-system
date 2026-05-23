@@ -140,6 +140,33 @@ graph TD
     ```
     The server will spin up on `http://127.0.0.1:5000`. Database tables will be automatically verified and generated.
 
+### Dockerization & Cloud Deployment (Render)
+
+For production deployment and automated staging, the project leverages a multi-stage Docker build that isolates compiler steps (reducing final image footprint and VM overhead).
+
+#### 1. Local Container Verification
+Build and test the container configuration locally:
+```bash
+# Build target image
+docker build -t smart-attend .
+
+# Spin up active container (mapping host port 5000)
+docker run -p 5000:5000 smart-attend
+```
+
+#### 2. Cloud Configuration (Render deployment)
+Render compiles the container using the root `Dockerfile` and configures proxy routing:
+1. Push all files to a repository on GitHub (including `Dockerfile`, `.dockerignore`, and custom env bindings inside `run.py`).
+2. Open Render and deploy a new **Web Service** tied to your repository.
+3. Choose **Docker** as the environment and specify `main` as the build branch.
+4. Set required variables in **Advanced Settings**:
+   - `PORT`: `5000` (Maps to Docker EXPOSE port)
+   - `FLASK_DEBUG`: `false`
+5. Deploy. The web app is assigned a secure HTTPS domain (`https://<service-name>.onrender.com`), enabling full webcam permissions in the client browser.
+
+> [!WARNING]
+> SQLite is ephemeral in standard cloud containers. The project is pre-seeded with the 5 demo students and encodings by default. To preserve logs permanently, mount a **Render Persistent Volume** to the `/app` root directory or configure PostgreSQL as the database backend.
+
 ---
 
 ## 🧩 7. Modules Description
