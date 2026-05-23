@@ -16,4 +16,5 @@ scratch/
 # Exclude local testing logs
 *.log
 *.txt
+!requirements.txt
 *.py.backup
