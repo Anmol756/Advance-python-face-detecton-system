@@ -36,5 +36,5 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV PORT=5000
 
-# Run entry point using optimized single-worker Gunicorn and eventlet for low memory
-CMD ["gunicorn", "--worker-class", "eventlet", "-w", "1", "--bind", "0.0.0.0:5000", "--timeout", "120", "run:app"]
+# Run entry point using optimized single-worker with threads for low memory & stability
+CMD ["gunicorn", "--workers", "1", "--threads", "2", "--bind", "0.0.0.0:5000", "--timeout", "120", "run:app"]
