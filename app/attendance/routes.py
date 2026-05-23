@@ -609,8 +609,23 @@ def register_socketio_handlers(socketio_instance):
 
             conn = db_connect()
             try:
-                # Query schedule periods ONCE per frame and reuse it
-                periods = conn.execute("SELECT period_name, start_time, end_time, prof_name FROM schedule").fetchall()
+                # Query schedule periods ONCE per frame, filtering by active session branch & semester to prevent overlapping period mixups
+                if session_config:
+                    config_branches = session_config.get('branches', [])
+                    config_semester = session_config.get('semester')
+                    if config_branches and config_semester is not None:
+                        placeholders = ",".join("?" for _ in config_branches)
+                        query = f"""
+                            SELECT period_name, start_time, end_time, prof_name 
+                            FROM schedule 
+                            WHERE branch IN ({placeholders}) AND semester = ?
+                        """
+                        params = config_branches + [config_semester]
+                        periods = conn.execute(query, params).fetchall()
+                    else:
+                        periods = conn.execute("SELECT period_name, start_time, end_time, prof_name FROM schedule").fetchall()
+                else:
+                    periods = conn.execute("SELECT period_name, start_time, end_time, prof_name FROM schedule").fetchall()
                 
                 results = []
                 for i, (encoding, location) in enumerate(zip(encodings, face_locations)):
@@ -638,10 +653,12 @@ def register_socketio_handlers(socketio_instance):
                     is_recognized = best_match_distance < config.CONFIDENCE_THRESHOLD
                     if is_recognized:
                         roll_no = ext.known_face_roll_numbers[best_match_index]
-                        student = conn.execute(
-                            "SELECT name, branch, semester, gender, age FROM students WHERE roll_no = ?",
+                        student_row = conn.execute(
+                            "SELECT name, branch, semester, gender, age, subject FROM students WHERE roll_no = ?",
                             (roll_no,)
                         ).fetchone()
+
+                        student = dict(student_row) if student_row else None
 
                         if student:
                             name = student['name']

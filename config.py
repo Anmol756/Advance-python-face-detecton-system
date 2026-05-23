@@ -29,7 +29,6 @@ PROFESSOR_ROLE = 'professor'
 # --- Face Recognition ---
 CONFIDENCE_THRESHOLD = 0.5
 COOLDOWN_PERIOD = 30          # Seconds before a student can be logged again
-AGE_MOOD_COOLDOWN_PERIOD = 5  # Seconds between age/mood detection runs
 
 # --- Liveness Detection ---
 EYE_AR_THRESH = 0.3
@@ -39,18 +38,5 @@ LIVENESS_SCALE_FACTOR = 0.25
 
 # --- ML Model Paths ---
 MODEL_DIR = os.path.join(BASE_DIR, 'models')
-AGE_MODEL_PROTO = os.path.join(MODEL_DIR, 'deploy_age.prototxt')
-AGE_MODEL_CAFFE = os.path.join(MODEL_DIR, 'age_net.caffemodel')
-GENDER_MODEL_PROTO = os.path.join(MODEL_DIR, 'deploy_gender.prototxt')
-GENDER_MODEL_CAFFE = os.path.join(MODEL_DIR, 'gender_net.caffemodel')
-EMOTION_MODEL_PROTO = os.path.join(MODEL_DIR, 'deploy_emotion.prototxt')
-EMOTION_MODEL_CAFFE = os.path.join(MODEL_DIR, 'emotion_net.caffemodel')
 LANDMARKS_MODEL_PATH = os.path.join(MODEL_DIR, 'shape_predictor_68_face_landmarks.dat')
 
-# --- ML Labels ---
-AGE_BUCKETS = [
-    "(0-2)", "(4-6)", "(8-12)", "(15-18)", "(18-22)",
-    "(22-25)", "(25-32)", "(38-43)", "(48-53)", "(60-100)"
-]
-GENDER_LIST = ['Male', 'Female']
-EMOTION_LIST = ['Angry', 'Disgust', 'Fear', 'Happy', 'Sad', 'Surprise', 'Neutral']

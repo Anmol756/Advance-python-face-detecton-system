@@ -16,52 +16,19 @@ from flask import flash
 
 import config
 
-# --- MediaPipe Face Detection ---
-face_detector = None
-try:
-    import mediapipe as mp
-    face_detector = mp.solutions.face_detection.FaceDetection(
-        model_selection=0, min_detection_confidence=0.5
-    )
-    print("MediaPipe FaceDetection initialized.")
-except Exception as e:
-    print(f"Error initializing MediaPipe FaceDetection: {e}")
-    face_detector = None
 
-# --- Dlib Predictor & DNN Models ---
+# --- Dlib Predictor (For blink/liveness detection) ---
 predictor = None
-age_net = None
-gender_net = None
-emotion_net = None
 
 try:
     if os.path.exists(config.LANDMARKS_MODEL_PATH):
         predictor = dlib.shape_predictor(config.LANDMARKS_MODEL_PATH)
-        print("Dlib shape predictor loaded.")
+        print("Dlib shape predictor loaded successfully.")
     else:
         print(f"Dlib shape predictor not found at {config.LANDMARKS_MODEL_PATH}. Liveness detection will not work.")
-
-    if os.path.exists(config.AGE_MODEL_CAFFE) and os.path.exists(config.AGE_MODEL_PROTO):
-        age_net = cv2.dnn.readNet(config.AGE_MODEL_CAFFE, config.AGE_MODEL_PROTO)
-        print("Age detection model loaded.")
-    else:
-        print("Age model files not found. Age detection will not work.")
-
-    if os.path.exists(config.GENDER_MODEL_CAFFE) and os.path.exists(config.GENDER_MODEL_PROTO):
-        gender_net = cv2.dnn.readNet(config.GENDER_MODEL_CAFFE, config.GENDER_MODEL_PROTO)
-        print("Gender detection model loaded.")
-    else:
-        print("Gender model files not found. Gender detection will not work.")
-
-    if os.path.exists(config.EMOTION_MODEL_CAFFE) and os.path.exists(config.EMOTION_MODEL_PROTO):
-        emotion_net = cv2.dnn.readNet(config.EMOTION_MODEL_CAFFE, config.EMOTION_MODEL_PROTO)
-        print("Emotion detection model loaded.")
-    else:
-        print("Emotion model files not found. Emotion detection will not work.")
-
 except Exception as e:
-    print(f"Error loading DNN models or Dlib predictor: {e}. Some features will not work.")
-    age_net, gender_net, emotion_net, predictor = None, None, None, None
+    print(f"Error loading Dlib shape predictor: {e}. Liveness detection will not work.")
+    predictor = None
 
 
 # --- Utility Functions ---

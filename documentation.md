@@ -35,7 +35,7 @@ Manual attendance tracking in academic and corporate environments is plagued by 
 | **Real-Time Gateway** | Flask-SocketIO (WebSockets) | Acknowledgment-driven frame streaming and instant logs |
 | **Database** | SQLite3 | Serialized biometric blobs, schedule logs, and user credentials |
 | **Computer Vision** | OpenCV-Python | Preprocessing, color conversions, and canvas drawing |
-| **Machine Learning** | Dlib (`face_recognition`), MediaPipe, Caffe Models | Face detection, landmark extraction, and age/gender inference |
+| **Machine Learning** | Dlib (`face_recognition`) | Face detection, landmark extraction, and liveness verification |
 
 ---
 
@@ -48,7 +48,7 @@ graph TD
     A[Webcam Capture] -->|Image Frame| B[WebSocket Channel]
     B -->|Base64 Stream| C[Flask-SocketIO Server]
     C -->|Frame Preprocessing| D[OpenCV / Downscaling]
-    D -->|Face Locations| E[MediaPipe Face Detection]
+    D -->|Face Locations| E[Face Recognition HOG Detection]
     E -->|68-Point Landmarks| F[Dlib Landmark Predictor]
     F -->|Blink Velocity Check| G[EAR Liveness Check]
     G -->|Pass| H[128D Embedding Extraction]

@@ -84,7 +84,7 @@ SmartAttend is a modern, premium, HR-impressive administration panel designed fo
 
 *   **Backend**: Flask 3.x, Flask-SocketIO, SQLite3
 *   **Frontend**: HTML5, Custom CSS3 variables, Bootstrap 5 (via CDN), FontAwesome 6, Chart.js
-*   **Computer Vision / ML**: OpenCV-Python, face-recognition (Dlib engine), MediaPipe, age/gender Caffe models
+*   **Computer Vision / ML**: OpenCV-Python, face-recognition (Dlib engine)
 
 ---
 
@@ -103,10 +103,8 @@ pip install -r requirements.txt
 ```
 
 ### 2. Add Pre-Trained Models
-Verify that you place the following files inside the `/models` directory:
-*   `shape_predictor_68_face_landmarks.dat` (Dlib shape predictor)
-*   `deploy_age.prototxt` & `age_net.caffemodel` (Caffe model for age classification)
-*   `deploy_gender.prototxt` & `gender_net.caffemodel` (Caffe model for gender classification)
+Verify that you place the following file inside the `/models` directory:
+*   `shape_predictor_68_face_landmarks.dat` (Dlib shape predictor - required for blink-based liveness detection)
 
 ---
 

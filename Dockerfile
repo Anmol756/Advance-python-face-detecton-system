@@ -2,7 +2,7 @@ FROM python:3.10-slim
 
 WORKDIR /app
 
-# Install runtime requirements for OpenCV, MediaPipe, and Dlib
+# Install runtime requirements for OpenCV and Dlib
 # Using development meta-packages (e.g. -dev) ensures compatibility across different Debian versions (Bookworm vs Trixie)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libopenblas-dev \
