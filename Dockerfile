@@ -12,13 +12,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libglib2.0-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Install precompiled dlib-bin first so it satisfies the dlib requirement for face-recognition
-# This completely bypasses compiling dlib from source, resolving Render's 8GB memory limit crash
-RUN pip install --no-cache-dir dlib-bin
-
-# Copy and install the rest of requirements.txt
+# Copy requirements manifest
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+
+# Install precompiled dlib-bin and other direct dependencies of face-recognition
+RUN pip install --no-cache-dir dlib-bin face-recognition-models pillow
+
+# Filter out dlib and face_recognition from requirements.txt to prevent pip from attempting to compile dlib
+RUN grep -ivE "dlib|face_recognition" requirements.txt > temp_reqs.txt
+RUN pip install --no-cache-dir -r temp_reqs.txt
+
+# Install face-recognition without pulling its dependencies (dlib is satisfied by dlib-bin)
+RUN pip install --no-cache-dir --no-deps face-recognition
 
 # Copy application files (includes code, static elements, and models)
 COPY . .
