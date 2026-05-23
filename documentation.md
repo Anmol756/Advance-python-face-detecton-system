@@ -297,8 +297,8 @@ SmartAttend successfully demonstrates a secure, modular, and optimized biometric
 
 ## 🔗 13. GitHub & Demo Showcase
 
-*   **GitHub Repository**: [https://github.com/username/smart-attendance-system](https://github.com/username/smart-attendance-system)
-*   **Video Walkthrough**: [YouTube Demo Walkthrough](https://youtube.com/watch?v=demo-video)
+*   **GitHub Repository**: [https://github.com/Anmol756/Advance-python-face-detecton-system](https://github.com/Anmol756/Advance-python-face-detecton-system)
+*   **Live Cloud Deployment**: [https://advance-python-face-detecton-system.onrender.com](https://advance-python-face-detecton-system.onrender.com)
 *   **Developer Portfolio**: [https://developer-portfolio.dev](https://developer-portfolio.dev)
 
 ## 📸 14. Screenshots & Interface Highlights

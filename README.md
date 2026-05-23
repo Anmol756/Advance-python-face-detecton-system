@@ -2,6 +2,8 @@
 
 SmartAttend is a modern, premium, HR-impressive administration panel designed for academic and corporate environments. Powered by **Flask**, **OpenCV**, **Dlib (face-recognition)**, and **Flask-SocketIO**, the system tracks real-time attendance, detects face liveness using eye-blink analysis, synchronizes credentials directly with SQLite, and generates AI-driven attendance insights.
 
+🚀 **Live Deployment**: [https://advance-python-face-detecton-system.onrender.com](https://advance-python-face-detecton-system.onrender.com)
+
 ---
 
 ## 🚀 Key Features
