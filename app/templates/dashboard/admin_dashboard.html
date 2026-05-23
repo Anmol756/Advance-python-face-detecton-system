@@ -1,0 +1,321 @@
+{% extends "layout.html" %}
+
+{% block page_title %}Admin Dashboard{% endblock %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+    /* Gradient themes using variables */
+    .bg-gradient-indigo-premium {
+        background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+        border: none;
+    }
+    .bg-gradient-emerald-premium {
+        background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+        border: none;
+    }
+    .bg-gradient-amber-premium {
+        background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+        border: none;
+    }
+    .bg-gradient-rose-premium {
+        background: linear-gradient(135deg, #ef4444 0%, #f87171 100%);
+        border: none;
+    }
+    
+    .quick-action-card {
+        background-color: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 1.25rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        text-decoration: none;
+        color: var(--text-primary);
+        transition: all 0.2s ease-in-out;
+        height: 100%;
+    }
+    .quick-action-card:hover {
+        background-color: rgba(37, 99, 235, 0.05);
+        border-color: rgba(37, 99, 235, 0.2);
+        color: var(--primary);
+        transform: translateY(-2px);
+    }
+    .quick-action-card i {
+        font-size: 1.5rem;
+        color: #64748b;
+        margin-bottom: 0.5rem;
+        transition: transform 0.2s ease-in-out;
+    }
+    .quick-action-card:hover i {
+        color: var(--primary);
+        transform: scale(1.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <!-- Welcome Header & Live Clock -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-3 border-bottom border-light">
+        <div>
+            <h2 class="h3 mb-1 font-weight-bold">System Overview</h2>
+            <p class="text-muted mb-0">Real-time metrics and system configuration control panel.</p>
+        </div>
+        <div class="mt-3 mt-md-0 d-flex align-items-center bg-white p-3 rounded-4 shadow-sm border border-light">
+            <div class="me-3 bg-primary bg-opacity-10 p-2.5 rounded-3 text-primary">
+                <i class="fas fa-clock fs-5"></i>
+            </div>
+            <div>
+                <div id="dashboard-clock" class="fs-5 font-weight-bold text-dark font-monospace">00:00:00 AM</div>
+                <div id="dashboard-date" class="text-muted text-uppercase" style="font-size: 0.65rem; font-weight: 600; letter-spacing: 0.5px;">Saturday, May 23, 2026</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Animated Stat Cards Grid -->
+    <div class="row g-4 mb-4">
+        <!-- Students -->
+        <div class="col-sm-6 col-lg-3">
+            <a href="{{ url_for('students.view_students') }}" class="saas-card bg-gradient-indigo-premium text-white d-flex align-items-center justify-content-between text-decoration-none h-100">
+                <div>
+                    <span class="text-white-50 text-uppercase font-weight-bold tracking-wider" style="font-size: 0.7rem;">Total Students</span>
+                    <h3 class="display-6 font-weight-bold my-1 text-white"><span class="stat-count" data-target="{{ total_students }}">0</span></h3>
+                    <span class="text-white-50" style="font-size: 0.75rem;"><i class="fas fa-arrow-right me-1"></i> View registry</span>
+                </div>
+                <i class="fas fa-user-graduate fs-1 text-white-50 opacity-25"></i>
+            </a>
+        </div>
+
+        <!-- Professors -->
+        <div class="col-sm-6 col-lg-3">
+            <a href="{{ url_for('professors.view_professors') }}" class="saas-card bg-gradient-emerald-premium text-white d-flex align-items-center justify-content-between text-decoration-none h-100">
+                <div>
+                    <span class="text-white-50 text-uppercase font-weight-bold tracking-wider" style="font-size: 0.7rem;">Total Professors</span>
+                    <h3 class="display-6 font-weight-bold my-1 text-white"><span class="stat-count" data-target="{{ total_professors }}">0</span></h3>
+                    <span class="text-white-50" style="font-size: 0.75rem;"><i class="fas fa-arrow-right me-1"></i> Manage staff</span>
+                </div>
+                <i class="fas fa-chalkboard-teacher fs-1 text-white-50 opacity-25"></i>
+            </a>
+        </div>
+
+        <!-- Scheduled Periods -->
+        <div class="col-sm-6 col-lg-3">
+            <a href="{{ url_for('schedule.manage_schedule') }}" class="saas-card bg-gradient-amber-premium text-white d-flex align-items-center justify-content-between text-decoration-none h-100">
+                <div>
+                    <span class="text-white-50 text-uppercase font-weight-bold tracking-wider" style="font-size: 0.7rem;">Scheduled Periods</span>
+                    <h3 class="display-6 font-weight-bold my-1 text-white"><span class="stat-count" data-target="{{ total_periods }}">0</span></h3>
+                    <span class="text-white-50" style="font-size: 0.75rem;"><i class="fas fa-arrow-right me-1"></i> Edit schedule</span>
+                </div>
+                <i class="fas fa-calendar-alt fs-1 text-white-50 opacity-25"></i>
+            </a>
+        </div>
+
+        <!-- Today's Attendance -->
+        <div class="col-sm-6 col-lg-3">
+            <a href="{{ url_for('attendance.view_attendance_log') }}" class="saas-card bg-gradient-rose-premium text-white d-flex align-items-center justify-content-between text-decoration-none h-100">
+                <div>
+                    <span class="text-white-50 text-uppercase font-weight-bold tracking-wider" style="font-size: 0.7rem;">Today's Logs</span>
+                    <h3 class="display-6 font-weight-bold my-1 text-white"><span class="stat-count" data-target="{{ today_attendance }}">0</span></h3>
+                    <span class="text-white-50" style="font-size: 0.75rem;"><i class="fas fa-arrow-right me-1"></i> Review history</span>
+                </div>
+                <i class="fas fa-clipboard-check fs-1 text-white-50 opacity-25"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- Active Session & Quick Actions -->
+    <div class="row g-4 mb-4">
+        <!-- Current Period Widget -->
+        <div class="col-lg-8">
+            <div class="saas-card h-100 d-flex flex-column justify-content-between">
+                <div>
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <h4 class="h5 mb-0 font-weight-bold d-flex align-items-center">
+                            <i class="fas fa-broadcast-tower text-primary me-2"></i> Current Session Info
+                        </h4>
+                        {% if current_period %}
+                        <span class="badge badge-pill badge-present uppercase animate-pulse">
+                            <span class="spinner-grow spinner-grow-sm text-success me-1" style="width: 8px; height: 8px;" role="status"></span> Active Now
+                        </span>
+                        {% else %}
+                        <span class="badge badge-pill bg-light text-muted uppercase">
+                            No Active Session
+                        </span>
+                        {% endif %}
+                    </div>
+
+                    {% if current_period %}
+                    <div class="row g-3 py-2">
+                        <div class="col-md-6">
+                            <div class="bg-light p-3 rounded-3 border border-light">
+                                <div class="text-uppercase text-muted font-weight-bold mb-1" style="font-size: 0.65rem;">Course / Class</div>
+                                <div class="h5 font-weight-bold text-dark mb-1">{{ current_period.name }}</div>
+                                <div class="text-muted" style="font-size: 0.8rem;">Branch: {{ current_period.branch }} | Semester: {{ current_period.semester }}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="bg-light p-3 rounded-3 border border-light">
+                                <div class="text-uppercase text-muted font-weight-bold mb-1" style="font-size: 0.65rem;">Professor In Charge</div>
+                                <div class="h5 font-weight-bold text-dark mb-1">{{ current_period.professor }}</div>
+                                <div class="text-muted" style="font-size: 0.8rem;">Schedule: {{ current_period.start }} - {{ current_period.end }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <div class="bg-light p-3 rounded-circle d-inline-block text-muted mb-2">
+                            <i class="fas fa-calendar-xmark fs-4"></i>
+                        </div>
+                        <p class="text-muted mb-0" style="font-size: 0.875rem;">There is no class scheduled at the current hour. Set up a schedule or initiate manual session configs.</p>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="border-top border-light pt-3 mt-3 d-flex justify-content-between align-items-center" style="font-size: 0.8rem;">
+                    <span class="text-muted"><i class="fas fa-info-circle me-1"></i> Based on local system timing</span>
+                    <a href="{{ url_for('schedule.manage_schedule') }}" class="text-primary text-decoration-none font-weight-semibold">View Full Schedule &rarr;</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions Panel -->
+        <div class="col-lg-4">
+            <div class="saas-card h-100 d-flex flex-column">
+                <h4 class="h5 mb-3 font-weight-bold d-flex align-items-center">
+                    <i class="fas fa-bolt text-primary me-2"></i> Quick Actions
+                </h4>
+                <div class="row g-2 flex-grow-1">
+                    <div class="col-6">
+                        <a href="{{ url_for('students.add_student') }}" class="quick-action-card">
+                            <i class="fas fa-user-plus text-primary"></i>
+                            <span class="small font-weight-bold">Add Student</span>
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="{{ url_for('schedule.configure_session') }}" class="quick-action-card">
+                            <i class="fas fa-video text-success"></i>
+                            <span class="small font-weight-bold">Start Live</span>
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="{{ url_for('attendance.view_attendance_log') }}" class="quick-action-card">
+                            <i class="fas fa-list-check text-warning"></i>
+                            <span class="small font-weight-bold">View Logs</span>
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="{{ url_for('attendance.view_attendance_log') }}" class="quick-action-card">
+                            <i class="fas fa-file-excel text-danger"></i>
+                            <span class="small font-weight-bold">Export Excel</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analytics Charts Grid -->
+    <div class="row g-4 mb-4">
+        <!-- Attendance Trend Chart -->
+        <div class="col-lg-8">
+            <div class="saas-card h-100">
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <div>
+                        <h4 class="h5 mb-0 font-weight-bold">Attendance Trends</h4>
+                        <span class="text-uppercase text-muted" style="font-size: 0.65rem; font-weight: 600; letter-spacing: 0.5px;">Last 7 Active Days</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="d-inline-block rounded-circle bg-primary" style="width: 10px; height: 10px;"></span>
+                        <span class="text-muted" style="font-size: 0.75rem;">Present Students</span>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="attendanceTrendChart" 
+                            data-labels='{{ attendance_chart_labels | safe }}' 
+                            data-values='{{ attendance_chart_data | safe }}'></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Student Branch Distribution -->
+        <div class="col-lg-4">
+            <div class="saas-card h-100">
+                <h4 class="h5 mb-0 font-weight-bold">Branch Distribution</h4>
+                <span class="text-uppercase text-muted d-block mb-4" style="font-size: 0.65rem; font-weight: 600; letter-spacing: 0.5px;">Student Enrollment by Branch</span>
+                <div class="chart-container">
+                    <canvas id="branchDistributionChart" 
+                            data-labels='{{ branch_labels | safe }}' 
+                            data-values='{{ branch_data | safe }}'></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Log Entries Feed & Explainer Widget -->
+    <div class="row g-4">
+        <!-- Recent Logs Feed -->
+        <div class="col-lg-8">
+            <div class="saas-card h-100">
+                <h4 class="h5 mb-4 font-weight-bold d-flex align-items-center">
+                    <i class="fas fa-rss text-primary me-2"></i> Recent Attendance Stream
+                </h4>
+                {% if recent_activity %}
+                <div class="activity-timeline">
+                    {% for act in recent_activity %}
+                    <div class="activity-item">
+                        <div class="activity-dot logged"></div>
+                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center ml-2 ps-1">
+                            <div>
+                                <span class="font-weight-bold text-dark">{{ act.name }}</span> 
+                                <span class="text-muted font-monospace" style="font-size: 0.8rem;">({{ act.roll_no }})</span> 
+                                <span class="text-muted small">logged in <strong class="text-dark">{{ act.period }}</strong></span>
+                            </div>
+                            <div class="text-muted mt-1 mt-md-0" style="font-size: 0.75rem;">
+                                <i class="far fa-clock me-1"></i>{{ act.time }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <div class="bg-light p-3 rounded-circle d-inline-block text-muted mb-2">
+                        <i class="fas fa-folder-open fs-4"></i>
+                    </div>
+                    <p class="text-muted mb-0" style="font-size: 0.875rem;">No recent logs found. Start a live scan to log attendance.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Explainer Infographic Widget -->
+        <div class="col-lg-4">
+            <div class="saas-card h-100 d-flex flex-column justify-content-between">
+                <div>
+                    <h4 class="h5 mb-0 font-weight-bold">How It Works</h4>
+                    <span class="text-uppercase text-muted d-block mb-3" style="font-size: 0.65rem; font-weight: 600; letter-spacing: 0.5px;">Facial Recognition Flow</span>
+                    <div class="overflow-hidden rounded-3 border border-light">
+                        <img src="{{ url_for('static', filename='images/how_facial_recognition_works.png') }}" 
+                             alt="Process Flow" 
+                             class="img-fluid w-100 object-cover" style="max-height: 180px; transition: transform 0.3s ease;">
+                    </div>
+                    <p class="text-muted mt-3 mb-0" style="font-size: 0.8rem; line-height: 1.5;">
+                        Camera scans feed &rarr; Face detection aligns landmarks &rarr; Liveness blinking validates user &rarr; Matches database encoding &rarr; Registers logs immediately.
+                    </p>
+                </div>
+                <div class="border-top border-light pt-3 mt-3 d-flex align-items-center justify-content-between text-uppercase text-muted" style="font-size: 0.65rem; font-weight: 600; letter-spacing: 0.5px;">
+                    <span>Secure Scanning</span>
+                    <span class="text-primary">Liveness Checked</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

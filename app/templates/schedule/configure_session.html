@@ -1,0 +1,58 @@
+{% extends "layout.html" %}
+
+{% block page_title %}Configure Live Session{% endblock %}
+{% block breadcrumb %}Configure Live Session{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-center py-4 fade-in-content">
+    <div class="saas-card w-100" style="max-width: 640px;">
+        <div class="text-center mb-4">
+            <h3 class="h4 font-weight-bold text-dark mb-2">Set Filters for Live Attendance</h3>
+            <p class="text-muted small">
+                Select the branch, semester, and subject to filter which students will be recognized and logged during the live session.
+            </p>
+        </div>
+
+        <form action="{{ url_for('schedule.configure_session') }}" method="POST" class="d-flex flex-column gap-3.5">
+            <!-- Branch Selection -->
+            <div>
+                <label for="branches" class="form-label small font-weight-semibold text-muted mb-1">Select Branch(es)</label>
+                <select id="branches" name="branches" class="form-select saas-select w-100" multiple required style="height: 120px;">
+                    {% for branch in available_branches %}
+                        <option value="{{ branch }}" {% if current_config and branch in current_config.branches %}selected{% endif %}>{{ branch }}</option>
+                    {% endfor %}
+                </select>
+                <span class="text-muted d-block mt-1" style="font-size: 0.725rem;">Hold <kbd class="px-1 text-xs bg-light border text-dark">Ctrl</kbd> (or <kbd class="px-1 text-xs bg-light border text-dark">Cmd</kbd> on Mac) to select multiple branches.</span>
+            </div>
+
+            <!-- Semester Selection -->
+            <div>
+                <label for="semester" class="form-label small font-weight-semibold text-muted mb-1">Select Semester</label>
+                <select id="semester" name="semester" class="form-select saas-select w-100" required>
+                    <option value="" disabled {% if not current_config %}selected{% endif %}>Select a semester</option>
+                    {% for semester in available_semesters %}
+                        <option value="{{ semester }}" {% if current_config and semester == current_config.semester %}selected{% endif %}>Semester {{ semester }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Subject Selection (Optional) -->
+            <div>
+                <label for="subject" class="form-label small font-weight-semibold text-muted mb-1">Select Subject (Optional)</label>
+                <select id="subject" name="subject" class="form-select saas-select w-100">
+                    <option value="" {% if not current_config or not current_config.subject %}selected{% endif %}>All Subjects (No Filter)</option>
+                    {% for subject in available_subjects %}
+                         <option value="{{ subject }}" {% if current_config and subject == current_config.subject %}selected{% endif %}>{{ subject }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="pt-3 text-center">
+                <button type="submit" class="btn btn-saas btn-saas-primary w-100 glow-primary">
+                    <i class="fas fa-video me-1"></i> Start Live Session
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

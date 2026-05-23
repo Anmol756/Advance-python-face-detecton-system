@@ -1,0 +1,282 @@
+{% extends "layout.html" %}
+
+{% block page_title %}Add New Professor{% endblock %}
+{% block breadcrumb %}Add Professor{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <div class="row justify-content-center">
+        <div class="col-xl-10 col-lg-11">
+            <div class="saas-card">
+                <div class="border-bottom border-light pb-3 mb-4">
+                    <h3 class="h4 font-weight-bold text-dark mb-1">
+                        <i class="fas fa-user-tie text-primary me-2"></i> Register New Professor
+                    </h3>
+                    <p class="text-muted small mb-0">Provide academic credentials and upload a recognition photo to register a new faculty member.</p>
+                </div>
+
+                <form method="POST" action="{{ url_for('professors.add_professor') }}" enctype="multipart/form-data" id="addProfessorForm">
+                    <div class="row g-4">
+                        <!-- Personal Info Column -->
+                        <div class="col-lg-6">
+                            <h5 class="font-weight-bold text-dark mb-3">General Information</h5>
+
+                            <div class="mb-3">
+                                <label for="prof_id" class="form-label small font-weight-semibold text-muted mb-1">Professor ID <span class="text-danger">*</span></label>
+                                <input type="text" id="prof_id" name="prof_id" class="form-control saas-input" placeholder="e.g. PROF101" value="{{ request.form.prof_id if request.form else '' }}" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="name" class="form-label small font-weight-semibold text-muted mb-1">Full Name <span class="text-danger">*</span></label>
+                                <input type="text" id="name" name="name" class="form-control saas-input" placeholder="e.g. Dr. Jane Smith" value="{{ request.form.name if request.form else '' }}" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="department" class="form-label small font-weight-semibold text-muted mb-1">Department <span class="text-danger">*</span></label>
+                                <input type="text" id="department" name="department" class="form-control saas-input" placeholder="e.g. Electrical Engineering" value="{{ request.form.department if request.form else '' }}" required>
+                            </div>
+
+                            <div class="row g-3 mb-3">
+                                <div class="col-sm-6">
+                                    <label for="email" class="form-label small font-weight-semibold text-muted mb-1">Email Address</label>
+                                    <input type="email" id="email" name="email" class="form-control saas-input" placeholder="e.g. jsmith@college.edu" value="{{ request.form.email if request.form else '' }}">
+                                </div>
+                                <div class="col-sm-6">
+                                    <label for="mobile" class="form-label small font-weight-semibold text-muted mb-1">Mobile Number</label>
+                                    <input type="text" id="mobile" name="mobile" class="form-control saas-input" placeholder="e.g. +1234567890" value="{{ request.form.mobile if request.form else '' }}">
+                                </div>
+                            </div>
+
+                            <h5 class="font-weight-bold text-dark mt-4 mb-3">Professional Credentials</h5>
+
+                            <div class="mb-3">
+                                <label for="qualification" class="form-label small font-weight-semibold text-muted mb-1">Qualification</label>
+                                <input type="text" id="qualification" name="qualification" class="form-control saas-input" placeholder="e.g. Ph.D. in Computer Science" value="{{ request.form.qualification if request.form else '' }}">
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="experience" class="form-label small font-weight-semibold text-muted mb-1">Teaching Experience</label>
+                                <input type="text" id="experience" name="experience" class="form-control saas-input" placeholder="e.g. 10 Years" value="{{ request.form.experience if request.form else '' }}">
+                            </div>
+                        </div>
+
+                        <!-- Photo & Details Column -->
+                        <div class="col-lg-6 border-start border-light ps-lg-4">
+                            <h5 class="font-weight-bold text-dark mb-3">Faculty Photo</h5>
+
+                            <!-- Photo Preview Box -->
+                            <div class="d-flex align-items-center justify-content-center border rounded-3 p-2 mb-3 bg-light overflow-hidden position-relative" style="height: 220px; border-style: dashed !important;">
+                                <img id="photo-preview" src="#" alt="Photo Preview" class="w-100 h-100 object-fit-contain d-none">
+                                <div id="no-photo-text" class="text-center text-muted py-5">
+                                    <i class="fas fa-image fs-3 mb-2 opacity-50"></i>
+                                    <p class="small mb-0">No Photo Selected</p>
+                                </div>
+                            </div>
+
+                            <!-- Selector Buttons -->
+                            <div class="row g-2 mb-4">
+                                <div class="col-6">
+                                    <button type="button" id="upload-file-btn" class="btn btn-saas btn-saas-outline w-100">
+                                        <i class="fas fa-file-upload text-primary me-1"></i> Upload File
+                                    </button>
+                                </div>
+                                <div class="col-6">
+                                    <button type="button" id="capture-camera-btn" class="btn btn-saas btn-saas-outline w-100">
+                                        <i class="fas fa-camera text-success me-1"></i> Use Camera
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Hidden inputs for file/capture method -->
+                            <input type="file" id="photo_file" name="photo_file" accept="image/*" class="d-none">
+                            <input type="hidden" id="photo_data_capture" name="photo_data_capture">
+                            <input type="hidden" id="photo_upload_method" name="photo_upload_method" value="">
+
+                            <h5 class="font-weight-bold text-dark mt-4 mb-3">Achievements & Remarks</h5>
+
+                            <div class="mb-3">
+                                <label for="achievements" class="form-label small font-weight-semibold text-muted mb-1">Achievements & Research Publications</label>
+                                <textarea id="achievements" name="achievements" rows="3" class="form-control saas-input" placeholder="List key research journals, awards, conferences...">{{ request.form.achievements if request.form else '' }}</textarea>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="others" class="form-label small font-weight-semibold text-muted mb-1">Other Information / Remarks</label>
+                                <textarea id="others" name="others" rows="2" class="form-control saas-input" placeholder="Any additional notes...">{{ request.form.others if request.form else '' }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Footer -->
+                    <div class="d-flex justify-content-end align-items-center gap-3 pt-3 border-top border-light mt-4">
+                        <a href="{{ url_for('professors.view_professors') }}" class="btn btn-saas btn-saas-outline">Cancel</a>
+                        <button type="submit" class="btn btn-saas btn-saas-primary glow-primary px-4">Register Faculty</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Camera Capture Modal -->
+<div class="modal fade" id="cameraModal" tabindex="-1" aria-labelledby="cameraModalLabel" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="modal-header border-bottom-0 pb-0 pt-4 px-4">
+                <h5 class="modal-title font-weight-bold text-dark" id="cameraModalLabel">
+                    <i class="fas fa-camera text-primary me-2"></i> Capture Faculty Photo
+                </h5>
+                <button type="button" class="btn-close" id="close-modal-btn" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center p-4">
+                <div class="position-relative bg-dark rounded-3 overflow-hidden border mb-2" style="aspect-ratio: 4/3; max-height: 280px;">
+                    <video id="camera-feed" class="w-100 h-100 object-fit-cover" autoplay playsinline></video>
+                </div>
+                <canvas id="camera-canvas" class="d-none"></canvas>
+                <p class="text-xs text-muted mt-2"><i class="fas fa-info-circle me-1"></i> Align the camera straight to capture facial details.</p>
+            </div>
+            <div class="modal-footer border-top-0 pt-0 pb-4 px-4 d-flex justify-content-between">
+                <button type="button" id="cancel-capture-btn" class="btn btn-saas btn-saas-outline">Cancel</button>
+                <button type="button" id="capture-btn" class="btn btn-saas btn-saas-primary glow-primary px-4">Take Photo</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const addProfessorForm = document.getElementById('addProfessorForm');
+        const photoFileInput = document.getElementById('photo_file');
+        const photoPreview = document.getElementById('photo-preview');
+        const noPhotoText = document.getElementById('no-photo-text');
+        const uploadFileBtn = document.getElementById('upload-file-btn');
+        const captureCameraBtn = document.getElementById('capture-camera-btn');
+        const photoUploadMethodInput = document.getElementById('photo_upload_method');
+
+        const cameraModalEl = document.getElementById('cameraModal');
+        const cameraFeed = document.getElementById('camera-feed');
+        const cameraCanvas = document.getElementById('camera-canvas');
+        const captureBtn = document.getElementById('capture-btn');
+        const cancelCaptureBtn = document.getElementById('cancel-capture-btn');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        const photoDataCaptureInput = document.getElementById('photo_data_capture');
+
+        let cameraStream = null;
+        let cameraModal = null;
+
+        if (cameraModalEl) {
+            cameraModal = new bootstrap.Modal(cameraModalEl);
+        }
+
+        function showPhotoPreview(src) {
+            photoPreview.src = src;
+            photoPreview.classList.remove('d-none');
+            noPhotoText.classList.add('d-none');
+        }
+
+        function clearPhotoPreview() {
+            photoPreview.src = '#';
+            photoPreview.classList.add('d-none');
+            noPhotoText.classList.remove('d-none');
+            photoDataCaptureInput.value = ''; 
+            photoFileInput.value = ''; 
+            photoUploadMethodInput.value = ''; 
+        }
+
+        // File Selection Action
+        uploadFileBtn.addEventListener('click', () => {
+            photoFileInput.click();
+        });
+
+        photoFileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    showPhotoPreview(e.target.result);
+                    photoUploadMethodInput.value = 'file_upload'; 
+                    photoDataCaptureInput.value = ''; 
+                };
+                reader.readAsDataURL(file);
+            } else {
+                clearPhotoPreview();
+            }
+        });
+
+        // Camera Activation Action
+        captureCameraBtn.addEventListener('click', async () => {
+            try {
+                cameraStream = await navigator.mediaDevices.getUserMedia({ video: { width: {ideal: 640}, height: {ideal: 480} } });
+                cameraFeed.srcObject = cameraStream;
+                if (cameraModal) {
+                    cameraModal.show();
+                }
+            } catch (err) {
+                console.error("Error accessing camera for capture:", err);
+                alert("Could not access camera. Please ensure permissions are granted and no other application is using it.");
+            }
+        });
+
+        captureBtn.addEventListener('click', () => {
+            if (cameraStream) {
+                const context = cameraCanvas.getContext('2d');
+                cameraCanvas.width = cameraFeed.videoWidth;
+                cameraCanvas.height = cameraFeed.videoHeight;
+                context.drawImage(cameraFeed, 0, 0, cameraCanvas.width, cameraCanvas.height);
+                const dataUrl = cameraCanvas.toDataURL('image/jpeg', 0.9); 
+                
+                showPhotoPreview(dataUrl);
+                photoDataCaptureInput.value = dataUrl; 
+                photoUploadMethodInput.value = 'camera_capture'; 
+                photoFileInput.value = ''; 
+
+                stopCameraStream();
+                if (cameraModal) {
+                    cameraModal.hide();
+                }
+            }
+        });
+
+        function handleModalClose() {
+            stopCameraStream();
+            if (cameraModal) {
+                cameraModal.hide();
+            }
+        }
+
+        cancelCaptureBtn.addEventListener('click', handleModalClose);
+        closeModalBtn.addEventListener('click', handleModalClose);
+
+        function stopCameraStream() {
+            if (cameraStream) {
+                cameraStream.getTracks().forEach(track => track.stop());
+                cameraStream = null;
+            }
+        }
+
+        // Form Submit Handler
+        addProfessorForm.addEventListener('submit', (event) => {
+            if (photoUploadMethodInput.value === '') {
+                alert("Please upload a photo or capture one from the camera.");
+                event.preventDefault(); 
+                return;
+            }
+
+            if (photoUploadMethodInput.value === 'file_upload' && photoFileInput.files.length === 0) {
+                 alert("Please select a photo file to upload.");
+                 event.preventDefault();
+                 return;
+            }
+
+            if (photoUploadMethodInput.value === 'camera_capture' && photoDataCaptureInput.value === '') {
+                alert("Please capture a photo from the camera.");
+                event.preventDefault();
+                return;
+            }
+        });
+
+        window.addEventListener('beforeunload', stopCameraStream);
+    });
+</script>
+{% endblock %}

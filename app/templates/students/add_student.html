@@ -1,0 +1,193 @@
+{% extends "layout.html" %}
+
+{% block page_title %}Add New Student{% endblock %}
+{% block breadcrumb %}Add Student{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <div class="row justify-content-center">
+        <div class="col-xl-10 col-lg-11">
+            <div class="saas-card">
+                <div class="border-bottom border-light pb-3 mb-4">
+                    <h3 class="h4 font-weight-bold text-dark mb-1">
+                        <i class="fas fa-user-plus text-primary me-2"></i> Register New Student
+                    </h3>
+                    <p class="text-muted small mb-0">Fill in the student details and select a registration photo for face matching.</p>
+                </div>
+
+                <form method="POST" action="{{ url_for('students.add_student') }}" enctype="multipart/form-data">
+                    <div class="row g-4">
+                        <!-- Student Details Column -->
+                        <div class="col-lg-6">
+                            <h5 class="font-weight-bold text-dark mb-3">Student Information</h5>
+                            
+                            <div class="mb-3">
+                                <label for="roll_no" class="form-label small font-weight-semibold text-muted mb-1">Roll Number <span class="text-danger">*</span></label>
+                                <input type="text" id="roll_no" name="roll_no" value="{{ request.form.get('roll_no', '') }}" class="form-control saas-input" placeholder="e.g. 2023CS01" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="name" class="form-label small font-weight-semibold text-muted mb-1">Full Name <span class="text-danger">*</span></label>
+                                <input type="text" id="name" name="name" value="{{ request.form.get('name', '') }}" class="form-control saas-input" placeholder="e.g. John Doe" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="branch" class="form-label small font-weight-semibold text-muted mb-1">Branch <span class="text-danger">*</span></label>
+                                <input type="text" id="branch" name="branch" value="{{ request.form.get('branch', '') }}" class="form-control saas-input" placeholder="e.g. Computer Science" required>
+                            </div>
+
+                            <div class="row g-3 mb-3">
+                                <div class="col-sm-6">
+                                    <label for="semester" class="form-label small font-weight-semibold text-muted mb-1">Semester <span class="text-danger">*</span></label>
+                                    <input type="number" id="semester" name="semester" value="{{ request.form.get('semester', '') }}" min="1" max="10" class="form-control saas-input" placeholder="e.g. 6" required>
+                                </div>
+                                <div class="col-sm-6">
+                                    <label for="admission_year" class="form-label small font-weight-semibold text-muted mb-1">Admission Year <span class="text-danger">*</span></label>
+                                    <input type="number" id="admission_year" name="admission_year" value="{{ request.form.get('admission_year', current_year) }}" min="1900" max="{{ current_year + 5 }}" class="form-control saas-input" required>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="subject" class="form-label small font-weight-semibold text-muted mb-1">Subject (Optional)</label>
+                                <input type="text" id="subject" name="subject" value="{{ request.form.get('subject', '') }}" class="form-control saas-input" placeholder="e.g. Machine Learning">
+                            </div>
+                        </div>
+
+                        <!-- Photo Registration Column -->
+                        <div class="col-lg-6 border-start border-light ps-lg-4">
+                            <h5 class="font-weight-bold text-dark mb-3">Face Recognition Photo</h5>
+                            
+                            <div class="mb-4">
+                                <label class="form-label small font-weight-semibold text-muted mb-2">Verification Method</label>
+                                <div class="d-flex gap-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" id="upload_file" name="photo_upload_method" value="file_upload" {% if request.form.get('photo_upload_method', 'file_upload') == 'file_upload' %}checked{% endif %}>
+                                        <label class="form-check-label small font-weight-semibold text-dark" for="upload_file">
+                                            Upload photo file
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" id="capture_camera" name="photo_upload_method" value="camera_capture" {% if request.form.get('photo_upload_method') == 'camera_capture' %}checked{% endif %}>
+                                        <label class="form-check-label small font-weight-semibold text-dark" for="capture_camera">
+                                            Capture from camera
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- File Upload Section -->
+                            <div id="file_upload_section" class="p-4 rounded-3 border border-dashed border-secondary border-opacity-25 bg-light mb-3">
+                                <p class="text-xs text-muted mb-3"><i class="fas fa-circle-info me-1 text-primary"></i> Upload a clear image of the student. The image must contain exactly one face.</p>
+                                <input type="file" id="photo_file" name="photo_file" accept="image/jpeg, image/png" class="form-control saas-input bg-white">
+                            </div>
+
+                            <!-- Camera Capture Section -->
+                            <div id="camera_capture_section" class="space-y-3 mb-3" style="display:none;">
+                                <div class="position-relative bg-dark rounded-3 overflow-hidden border mb-3" style="aspect-ratio: 4/3; max-height: 280px;">
+                                    <video id="camera_video" class="w-100 h-100 object-fit-cover" autoplay playsinline></video>
+                                </div>
+                                <button type="button" id="capture_button" class="btn btn-saas btn-saas-outline w-100 d-flex align-items-center justify-content-center gap-2 mb-2 py-2">
+                                    <i class="fas fa-camera text-primary"></i> Capture Photo
+                                </button>
+                                <canvas id="camera_canvas" style="display:none;"></canvas>
+                                <input type="hidden" id="photo_data" name="photo_data">
+                                <p class="text-xs text-muted mt-2"><i class="fas fa-lightbulb text-warning me-1"></i> Ensure the student's face is well-lit, fully centered and visible before capturing.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Bar -->
+                    <div class="d-flex justify-content-end align-items-center gap-3 pt-3 border-top border-light mt-4">
+                        <a href="{{ url_for('students.view_students') }}" class="btn btn-saas btn-saas-outline">Cancel</a>
+                        <button type="submit" class="btn btn-saas btn-saas-primary glow-primary px-4">Register Student</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const uploadFileRadio = document.getElementById('upload_file');
+        const captureCameraRadio = document.getElementById('capture_camera');
+
+        const fileUploadSection = document.getElementById('file_upload_section');
+        const cameraCaptureSection = document.getElementById('camera_capture_section');
+
+        const cameraVideo = document.getElementById('camera_video');
+        const captureButton = document.getElementById('capture_button');
+        const cameraCanvas = document.getElementById('camera_canvas');
+        const photoDataInput = document.getElementById('photo_data');
+
+        let currentStream = null;
+
+        function showSection(sectionId) {
+            fileUploadSection.style.display = 'none';
+            cameraCaptureSection.style.display = 'none';
+
+            if (sectionId === 'file_upload_section') {
+                fileUploadSection.style.display = 'block';
+                stopCamera();
+                photoDataInput.value = '';
+            } else if (sectionId === 'camera_capture_section') {
+                cameraCaptureSection.style.display = 'block';
+                startCameraForCapture();
+                document.getElementById('photo_file').value = ''; 
+            }
+        }
+
+        uploadFileRadio.addEventListener('change', () => showSection('file_upload_section'));
+        captureCameraRadio.addEventListener('change', () => showSection('camera_capture_section'));
+
+        if (captureCameraRadio.checked) {
+            showSection('camera_capture_section');
+        } else {
+            showSection('file_upload_section');
+        }
+
+        async function startCameraForCapture() {
+            if (currentStream) { 
+                stopCamera();
+            }
+            try {
+                currentStream = await navigator.mediaDevices.getUserMedia({ video: { width: {ideal: 640}, height: {ideal: 480} } });
+                cameraVideo.srcObject = currentStream;
+            } catch (err) {
+                console.error("Error accessing camera: ", err);
+                alert("Could not access camera. Please ensure it's connected and permissions are granted.");
+                captureCameraRadio.checked = false; 
+                uploadFileRadio.checked = true; 
+                showSection('file_upload_section'); 
+            }
+        }
+
+        function stopCamera() {
+            if (currentStream) {
+                currentStream.getTracks().forEach(track => track.stop());
+                cameraVideo.srcObject = null;
+                currentStream = null;
+            }
+        }
+
+        captureButton.addEventListener('click', () => {
+            if (currentStream) {
+                cameraCanvas.width = cameraVideo.videoWidth;
+                cameraCanvas.height = cameraVideo.videoHeight;
+                cameraCanvas.getContext('2d').drawImage(cameraVideo, 0, 0, cameraCanvas.width, cameraCanvas.height);
+                const imageData = cameraCanvas.toDataURL('image/jpeg', 0.8); 
+                photoDataInput.value = imageData; 
+
+                alert("Photo captured successfully! Click 'Register Student' to submit the student to the database.");
+                stopCamera(); 
+            } else {
+                alert("Camera not active. Please ensure camera is enabled or try again.");
+            }
+        });
+
+        window.addEventListener('beforeunload', stopCamera);
+    });
+</script>
+{% endblock %}

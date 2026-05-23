@@ -1,0 +1,389 @@
+{% extends "layout.html" %}
+
+{% block page_title %}Live Attendance Feed{% endblock %}
+{% block breadcrumb %}Live Attendance{% endblock %}
+
+{% block content %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
+
+<div class="container-fluid px-0">
+    <div class="row g-4">
+        <!-- Live Camera Feed Column -->
+        <div class="col-lg-8">
+            <div class="saas-card p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="h5 mb-0 font-weight-bold d-flex align-items-center">
+                        <i class="fas fa-camera text-primary me-2"></i> Live Camera Feed
+                    </h4>
+                    <span id="session-info-badge" class="badge bg-primary bg-opacity-10 text-primary font-weight-semibold px-3 py-2 rounded-pill" style="font-size: 0.8rem;">
+                        <i class="fas fa-circle-nodes me-1"></i> Active Session
+                    </span>
+                </div>
+                
+                <div class="position-relative w-100 rounded-4 overflow-hidden bg-dark border shadow-inner" style="aspect-ratio: 16/9; min-height: 320px;">
+                    <video id="video" autoplay playsinline class="position-absolute top-0 start-0 w-100 h-100 object-fit-cover" style="opacity: 0; pointer-events: none; z-index: 1;"></video>
+                    <canvas id="canvas" class="w-100 h-100 object-fit-cover position-relative" style="z-index: 2;"></canvas>
+                    <div id="loading" class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center bg-black bg-opacity-75 text-white p-4" style="z-index: 3;">
+                        <div class="spinner-border text-primary mb-3" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <span class="font-weight-semibold">Starting Camera...</span>
+                    </div>
+                </div>
+                
+                <div class="mt-4 d-flex flex-wrap justify-content-between align-items-center gap-3">
+                    <div id="status-box" class="badge bg-secondary px-3 py-2.5 rounded-pill font-weight-semibold text-wrap align-items-center d-flex gap-2">
+                        <span class="status-indicator-dot bg-white rounded-circle d-inline-block" style="width: 8px; height: 8px;"></span>
+                        <span>Status: Initializing...</span>
+                    </div>
+                    <a href="{{ url_for('schedule.configure_session') }}" class="btn btn-saas btn-saas-outline align-items-center d-flex gap-2">
+                        <i class="fas fa-sliders-h text-warning"></i>
+                        <span>Change Session Filters</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Live Scan Log Column -->
+        <div class="col-lg-4">
+            <div class="saas-card d-flex flex-column" style="min-height: 480px; height: 100%;">
+                <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-3">
+                    <h4 class="h5 mb-0 font-weight-bold">
+                        <i class="fas fa-list-check text-primary me-2"></i> Live Scan Log
+                    </h4>
+                    <span class="badge bg-light text-secondary border rounded-pill px-2.5 py-1">Real-time</span>
+                </div>
+                <div id="live-log" class="flex-grow-1 overflow-y-auto pe-1 d-flex flex-column gap-2" style="max-height: 440px;">
+                    <!-- Placeholder when empty -->
+                    <div id="log-empty-state" class="text-center py-5 my-auto text-muted">
+                        <div class="bg-light p-3 rounded-circle d-inline-block mb-2">
+                            <i class="fas fa-radar fs-4 text-secondary"></i>
+                        </div>
+                        <p class="small mb-0">Waiting for scans...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const context = canvas.getContext('2d');
+        const loadingDiv = document.getElementById('loading');
+        const statusBox = document.getElementById('status-box');
+        const liveLog = document.getElementById('live-log');
+
+        const socket = io();
+        window.frameInterval = null; 
+        window.videoDrawInterval = null; 
+        let lastDrawnFaces = []; 
+        let frameInFlight = false;
+        let safetyTimeout = null;
+
+        socket.on('connect', () => {
+            console.log('Connected to server!');
+            statusBox.textContent = 'Status: Connected';
+            statusBox.className = 'badge bg-success px-3 py-2.5 rounded-pill font-weight-semibold text-wrap align-items-center d-flex gap-2';
+        });
+
+        socket.on('disconnect', () => {
+            console.log('Disconnected from server!');
+            statusBox.textContent = 'Status: Disconnected';
+            statusBox.className = 'badge bg-danger px-3 py-2.5 rounded-pill font-weight-semibold text-wrap align-items-center d-flex gap-2';
+            if (window.frameInterval) clearInterval(window.frameInterval);
+            if (window.videoDrawInterval) clearInterval(window.videoDrawInterval); 
+            if (safetyTimeout) {
+                clearTimeout(safetyTimeout);
+                safetyTimeout = null;
+            }
+            frameInFlight = false;
+        });
+
+        function startCamera() {
+            loadingDiv.classList.remove('d-none');
+            loadingDiv.classList.add('d-flex');
+            loadingDiv.innerHTML = `
+                <div class="spinner-border text-primary mb-3" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <span class="font-weight-semibold">Requesting Camera Access...</span>`;
+            
+            navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 640 }, height: { ideal: 480 } } })
+                .then(stream => {
+                    video.srcObject = stream;
+                    console.log('Camera stream obtained successfully. Trying to play video...'); 
+                    video.onloadedmetadata = () => {
+                        console.log('Video metadata loaded. Video dimensions:', video.videoWidth, video.videoHeight); 
+                        loadingDiv.classList.add('d-none');
+                        loadingDiv.classList.remove('d-flex');
+                        canvas.width = video.videoWidth;
+                        canvas.height = video.videoHeight;
+                        video.play(); 
+                        console.log('Video element play() called.'); 
+                        
+                        if (window.videoDrawInterval) clearInterval(window.videoDrawInterval);
+                        window.videoDrawInterval = setInterval(() => {
+                            if (!video.paused && !video.ended && video.readyState >= video.HAVE_CURRENT_DATA) {
+                                context.clearRect(0, 0, canvas.width, canvas.height); 
+                                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                                if (lastDrawnFaces.length > 0) {
+                                    drawBoundingBoxes(lastDrawnFaces);
+                                }
+                            }
+                        }, 30); 
+
+                        // Start acknowledgment-based loop
+                        frameInFlight = false;
+                        sendFrame();
+                        console.log('Acknowledgment-based frame loop started.'); 
+                    };
+                    video.onerror = (e) => { 
+                        console.error('Video element error:', e);
+                        statusBox.textContent = 'Status: Video Error!';
+                        statusBox.className = 'badge bg-danger px-3 py-2.5 rounded-pill font-weight-semibold text-wrap align-items-center d-flex gap-2';
+                    };
+                })
+                .catch(err => {
+                    console.error("Error accessing camera via getUserMedia:", err);
+                    const errorMessage = `
+                        <div class="text-center p-4">
+                            <div class="bg-warning bg-opacity-10 text-warning p-3 rounded-circle d-inline-block mb-3" style="width: 50px; height: 50px; line-height: 50px; text-align: center;">
+                                <i class="fas fa-exclamation-triangle fs-4"></i>
+                            </div>
+                            <h5 class="font-weight-bold text-white mb-2">Camera Access Denied</h5>
+                            <p class="text-muted small mb-4 mx-auto" style="max-width: 320px;">
+                                This application requires camera permissions. Please allow access in browser settings and make sure another app isn't using it.
+                            </p>
+                            <button id="retry-camera" class="btn btn-saas btn-saas-primary glow-primary py-2 px-4 rounded-pill">
+                                <i class="fas fa-redo-alt me-1"></i> Try Again
+                            </button>
+                        </div>`;
+                    loadingDiv.innerHTML = errorMessage;
+                    document.getElementById('retry-camera').addEventListener('click', startCamera);
+                    statusBox.textContent = 'Status: Camera Error!';
+                    statusBox.className = 'badge bg-danger px-3 py-2.5 rounded-pill font-weight-semibold text-wrap align-items-center d-flex gap-2';
+                });
+        }
+        
+        startCamera(); 
+ 
+        function sendFrame() {
+            if (frameInFlight) return;
+            if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                if (video.videoWidth === 0 || video.videoHeight === 0) {
+                    console.warn('Video dimensions are 0, skipping frame capture.'); 
+                    return; 
+                }
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = video.videoWidth; 
+                tempCanvas.height = video.videoHeight; 
+                const tempContext = tempCanvas.getContext('2d');
+                tempContext.drawImage(video, 0, 0, tempCanvas.width, tempCanvas.height);
+                const dataURL = tempCanvas.toDataURL('image/jpeg', 0.8); 
+                if (socket.connected) {
+                    frameInFlight = true;
+                    socket.emit('image_from_client', dataURL);
+                    
+                    // Safety fallback: if no reply after 1500ms, reset and try again
+                    if (safetyTimeout) clearTimeout(safetyTimeout);
+                    safetyTimeout = setTimeout(() => {
+                        console.warn('Recognition response timed out. Resending frame...');
+                        frameInFlight = false;
+                        sendFrame();
+                    }, 1500);
+                }
+            }
+        }
+
+        socket.on('recognition_result', (data) => {
+            if (safetyTimeout) clearTimeout(safetyTimeout);
+            frameInFlight = false;
+            setTimeout(sendFrame, 30);
+
+            console.log('Received recognition_result from server:', data); 
+            if (data.status === 'success' && data.results) {
+                lastDrawnFaces = data.results; 
+                console.log('lastDrawnFaces updated with:', lastDrawnFaces.length, 'faces.'); 
+            } else {
+                lastDrawnFaces = []; 
+                console.log('lastDrawnFaces cleared. Reason:', data.status, data.message); 
+            }
+
+            if (data.period) {
+                statusBox.textContent = `Period: ${data.period}`;
+                statusBox.className = 'badge bg-primary px-3 py-2.5 rounded-pill font-weight-semibold text-wrap align-items-center d-flex gap-2';
+            } else {
+                statusBox.textContent = 'Period: N/A';
+                statusBox.className = 'badge bg-secondary px-3 py-2.5 rounded-pill font-weight-semibold text-wrap align-items-center d-flex gap-2';
+            }
+
+            if (data.status === 'error') {
+                console.error("Server error:", data.message);
+                statusBox.textContent = `Error: ${data.message}`;
+                statusBox.className = 'badge bg-danger px-3 py-2.5 rounded-pill font-weight-semibold text-wrap align-items-center d-flex gap-2';
+            }
+        });
+
+        socket.on('new_log_entry', (data) => {
+            // Remove the empty state placeholder if present
+            const emptyState = document.getElementById('log-empty-state');
+            if (emptyState) {
+                emptyState.remove();
+            }
+
+            const logEntry = document.createElement('div');
+            const displayGender = data.gender ? `, ${data.gender}` : '';
+            const displayAge = data.age ? `, ${data.age} yrs` : '';
+
+            logEntry.className = 'd-flex align-items-start p-3 bg-success bg-opacity-10 border-start border-4 border-success rounded-3 mb-2 animate-fade-in';
+            logEntry.innerHTML = `
+                <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 32px; height: 32px; flex-shrink: 0;">
+                    <i class="fas fa-check fs-6"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0 font-weight-bold text-dark" style="font-size: 0.9rem;">${data.name}</h6>
+                        <span class="badge bg-success-subtle text-success rounded-pill" style="font-size: 0.7rem;">${data.roll_no}</span>
+                    </div>
+                    <p class="mb-1 text-muted text-xs">${data.time}${displayGender}${displayAge}</p>
+                    <span class="text-success text-xs font-weight-semibold d-flex align-items-center">
+                        <i class="fas fa-circle-check me-1"></i> Attendance Logged
+                    </span>
+                </div>`;
+            liveLog.prepend(logEntry);
+            if (liveLog.children.length > 20) {
+                liveLog.removeChild(liveLog.lastChild);
+            }
+        });
+
+        function drawBoundingBoxes(results) {
+            const scaleX = canvas.width / video.videoWidth; 
+            const scaleY = canvas.height / video.videoHeight; 
+            const textPadding = 5; 
+            const lineHeight = 18; 
+
+            results.forEach(res => {
+                const [top, right, bottom, left] = res.location;
+                
+                const sTop = top * scaleY;
+                const sRight = right * scaleX;
+                const sBottom = bottom * scaleY;
+                const sLeft = left * scaleX;
+
+                let color;
+                let displayLines = [];
+
+                if (res.name === 'Unknown') {
+                    color = '#EF4444'; // Red for unknown
+                    displayLines.push('Unknown Face');
+                    displayLines.push('No match found');
+                } else {
+                    let mainInfo = `${res.name}`;
+                    if (res.roll_no && res.roll_no !== 'N/A') {
+                        mainInfo += ` (${res.roll_no})`;
+                    }
+                    displayLines.push(mainInfo);
+
+                    let secondaryInfo = [];
+                    if (res.gender && res.gender !== 'N/A') {
+                        secondaryInfo.push(res.gender);
+                    }
+                    if (res.age && res.age !== 'N/A') {
+                        secondaryInfo.push(`${res.age} yrs`);
+                    }
+                    if (res.distance !== undefined && res.distance !== null) { 
+                        secondaryInfo.push(`Dist: ${res.distance.toFixed(2)}`); 
+                    } else {
+                         secondaryInfo.push('Dist: N/A');
+                    }
+                    
+                    if (secondaryInfo.length > 0) {
+                        displayLines.push(secondaryInfo.join(', '));
+                    }
+
+                    // --- Liveness Status Display ---
+                    if (res.liveness_status && res.liveness_status !== 'N/A') {
+                        let livenessColor = 'white'; 
+                        if (res.liveness_status.includes('Blink Detected') || res.liveness_status.includes('Eyes Open')) {
+                            livenessColor = '#CCFFCC'; 
+                        } else if (res.liveness_status.includes('Liveness Check Failed') || res.liveness_status.includes('Eyes Closed/Low EAR')) {
+                            livenessColor = '#FFCCCC'; 
+                        }
+                        displayLines.push(`Liveness: ${res.liveness_status}`);
+                    }
+                    
+                    switch(res.status) {
+                        case 'logged':
+                            color = '#10B981'; // Green
+                            displayLines.push('Status: Logged!');
+                            break;
+                        case 'cooldown':
+                            color = '#F59E0B'; // Amber
+                            displayLines.push('Status: Cooldown');
+                            break;
+                        case 'already_logged':
+                            color = '#6B7280'; // Gray
+                            displayLines.push('Status: Already Logged');
+                            break;
+                        case 'filter_mismatch':
+                            color = '#8B5CF6'; // Violet
+                            displayLines.push('Status: Wrong Class');
+                            break;
+                        case 'no_active_period':
+                            color = '#FFD700'; // Gold, for no active period
+                            displayLines.push('Status: No Active Period');
+                            break;
+                        case 'session_not_configured':
+                            color = '#DC2626'; // Red, critical error
+                            displayLines.push('Status: Session NOT Configured');
+                            break;
+                        case 'db_mismatch': 
+                             color = '#FFA500'; // Orange
+                             displayLines.push('Status: DB Mismatch!');
+                             break;
+                        case 'Liveness Check Failed': 
+                            color = '#DC2626'; // Red
+                            displayLines.push('Status: Liveness Check Failed!');
+                            break;
+                        default:
+                            color = '#3B82F6'; // Blue for general/default
+                            displayLines.push('Status: Detected');
+                    }
+                }
+
+                context.strokeStyle = color;
+                context.lineWidth = 3;
+                context.strokeRect(sLeft, sTop, sRight - sLeft, sBottom - sTop);
+
+                context.font = `${lineHeight - 2}px Inter, sans-serif`;
+                let maxTextWidth = 0;
+                displayLines.forEach(line => {
+                    const currentWidth = context.measureText(line).width;
+                    if (currentWidth > maxTextWidth) {
+                        maxTextWidth = currentWidth;
+                    }
+                });
+
+                const textBlockHeight = (displayLines.length * lineHeight) + (textPadding * 2);
+                const textBlockWidth = maxTextWidth + (textPadding * 2);
+
+                const actualLeft = sLeft;
+                const actualBottom = sBottom;
+
+                context.fillStyle = color;
+                context.fillRect(actualLeft, actualBottom, textBlockWidth, textBlockHeight);
+                
+                context.fillStyle = 'white';
+                context.textBaseline = 'top';
+
+                displayLines.forEach((line, index) => {
+                    context.fillText(line, actualLeft + textPadding, actualBottom + textPadding + (index * lineHeight));
+                });
+            });
+        }
+    });
+</script>
+{% endblock %}

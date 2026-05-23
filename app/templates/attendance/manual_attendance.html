@@ -1,0 +1,179 @@
+{% extends "layout.html" %}
+
+{% block page_title %}Manual Attendance{% endblock %}
+{% block breadcrumb %}Manual Attendance{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <div class="row g-4">
+        <!-- Filters Column (Left) -->
+        <div class="col-lg-4">
+            <div class="saas-card">
+                <h4 class="h5 mb-3 font-weight-bold d-flex align-items-center">
+                    <i class="fas fa-filter text-primary me-2"></i> Filter Students
+                </h4>
+                <form method="GET" action="{{ url_for('attendance.manual_attendance') }}">
+                    <div class="mb-3">
+                        <label for="branch" class="form-label small font-weight-semibold text-muted mb-1">Branch</label>
+                        <select name="branch" id="branch" class="form-select saas-select">
+                            <option value="all">All Branches</option>
+                            {% for b in available_branches %}
+                                <option value="{{ b }}" {% if selected_branch == b %}selected{% endif %}>{{ b }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="semester" class="form-label small font-weight-semibold text-muted mb-1">Semester</label>
+                        <select name="semester" id="semester" class="form-select saas-select">
+                            <option value="all">All Semesters</option>
+                            {% for s in available_semesters %}
+                                <option value="{{ s }}" {% if selected_semester|string == s|string %}selected{% endif %}>Semester {{ s }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-saas btn-saas-outline w-100 mt-2">
+                        <i class="fas fa-filter me-1"></i> Apply Filters
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Student List & Session Details (Right) -->
+        <div class="col-lg-8">
+            <form method="POST" action="{{ url_for('attendance.manual_attendance') }}" id="markAttendanceForm">
+                <input type="hidden" name="current_filter_branch" value="{{ selected_branch if selected_branch else 'all' }}">
+                <input type="hidden" name="current_filter_semester" value="{{ selected_semester if selected_semester else 'all' }}">
+                <input type="hidden" name="current_filter_period_id" value="{{ selected_period_id if selected_period_id else 'all' }}">
+
+                <div class="saas-card p-0 overflow-hidden d-flex flex-column h-100 shadow-sm border border-light" style="border-radius: 18px;">
+                    <!-- Form Header -->
+                    <div class="p-4 border-bottom border-light bg-white">
+                        <div class="row align-items-center g-3">
+                            <div class="col-md-6">
+                                <h4 class="h5 mb-1 font-weight-bold text-dark">Log Manual Attendance</h4>
+                                <p class="text-muted small mb-0">Choose the class period and select present students below.</p>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="period_id" class="form-label small font-weight-semibold text-muted mb-1">Target Period <span class="text-danger">*</span></label>
+                                <select name="period_id" id="period_id" class="form-select saas-select" required>
+                                    <option value="" disabled {% if not selected_period_id %}selected{% endif %}>-- Select a Period --</option>
+                                    {% for period in schedule %}
+                                        <option value="{{ period.period_id }}" {% if selected_period_id|string == period.period_id|string %}selected{% endif %}>
+                                            {{ period.period_name }} ({{ period.start_time }} - {{ period.end_time }}) - Prof: {{ period.prof_name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Students Directory Table -->
+                    <div class="table-responsive flex-grow-1" style="max-height: 480px; overflow-y: auto;">
+                        {% if students %}
+                        <table class="table saas-table table-hover align-middle mb-0">
+                            <thead class="sticky-top bg-white border-bottom border-light" style="z-index: 5;">
+                                <tr>
+                                    <th style="width: 50px; padding-left: 1.5rem;">
+                                        <div class="form-check m-0">
+                                            <input type="checkbox" id="selectAllCheckbox" class="form-check-input">
+                                        </div>
+                                    </th>
+                                    <th>Roll No</th>
+                                    <th>Student Name</th>
+                                    <th>Branch</th>
+                                    <th>Semester</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for student in students %}
+                                <tr>
+                                    <td style="padding-left: 1.5rem;">
+                                        <div class="form-check m-0">
+                                            <input type="checkbox" name="roll_nos" value="{{ student.roll_no }}" 
+                                                   {% if student.roll_no in form_data.getlist('roll_nos') %}checked{% endif %} 
+                                                   class="form-check-input student-checkbox">
+                                        </div>
+                                    </td>
+                                    <td class="font-weight-bold text-dark font-monospace" style="font-size: 0.85rem;">{{ student.roll_no }}</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-initials bg-primary bg-opacity-10 text-primary rounded-circle me-2.5 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; font-size: 0.8rem; font-weight: 600;">
+                                                {{ student.name[0]|upper }}
+                                            </div>
+                                            <span class="font-weight-semibold text-dark">{{ student.name }}</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="text-uppercase text-muted font-weight-bold" style="font-size: 0.75rem;">{{ student.branch }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-light text-dark px-2.5 py-1.5 font-weight-semibold">Semester {{ student.semester }}</span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        {% else %}
+                        <div class="text-center py-5">
+                            <div class="bg-light p-3 rounded-circle d-inline-block text-muted mb-2">
+                                <i class="fas fa-users-slash fs-4"></i>
+                            </div>
+                            <p class="text-muted mb-0" style="font-size: 0.875rem;">No students found matching your filters.</p>
+                            <p class="text-muted small">Please select a different branch or semester above.</p>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Action Bar (Footer) -->
+                    <div class="p-4 border-top border-light bg-light d-flex flex-wrap align-items-center justify-content-between gap-3" style="border-bottom-left-radius: 18px; border-bottom-right-radius: 18px;">
+                        <div class="d-flex align-items-center gap-2">
+                            <button type="button" id="markAllPresentBtn" class="btn btn-saas btn-saas-outline">
+                                <i class="fas fa-check-double me-1"></i> Select All
+                            </button>
+                            <a href="{{ url_for('dashboard.admin_dashboard') }}" class="btn btn-link text-muted text-decoration-none small">
+                                Cancel
+                            </a>
+                        </div>
+                        <div>
+                            <button type="submit" name="action" value="mark_attendance" class="btn btn-saas btn-saas-primary glow-primary px-4 py-2">
+                                <i class="fas fa-check-circle me-1"></i> Mark Selected Present
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+        const studentCheckboxes = document.querySelectorAll('.student-checkbox');
+        const markAllPresentBtn = document.getElementById('markAllPresentBtn');
+
+        // Logic for "Select All" checkbox in table header
+        if (selectAllCheckbox) { 
+            selectAllCheckbox.addEventListener('change', function() {
+                studentCheckboxes.forEach(checkbox => {
+                    checkbox.checked = this.checked;
+                });
+            });
+        }
+
+        // Logic for the standalone "Select All" button
+        if (markAllPresentBtn) {
+            markAllPresentBtn.addEventListener('click', function() {
+                studentCheckboxes.forEach(checkbox => {
+                    checkbox.checked = true;
+                });
+                if (selectAllCheckbox) {
+                    selectAllCheckbox.checked = true;
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

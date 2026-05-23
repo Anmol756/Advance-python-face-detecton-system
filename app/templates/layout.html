@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block page_title %}Smart Attendance System{% endblock %}</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome 6 for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Premium Global Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        /* Custom layout adjustments for Sidebar + Topbar */
+        .wrapper {
+            display: flex;
+            width: 100%;
+            align-items: stretch;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styling */
+        #sidebar {
+            min-width: 260px;
+            max-width: 260px;
+            background: #0f172a; /* Slate 900 */
+            color: #fff;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 4px 0 10px rgba(15, 23, 42, 0.05);
+            z-index: 1000;
+        }
+
+        #sidebar.active {
+            margin-left: -260px;
+        }
+
+        #sidebar .sidebar-header {
+            padding: 1.5rem 1.25rem;
+            background: #0b0f19;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        #sidebar .sidebar-logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: #3b82f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        #sidebar ul.components {
+            padding: 1.5rem 0.75rem;
+        }
+
+        #sidebar ul li {
+            list-style: none;
+            margin-bottom: 0.35rem;
+        }
+
+        #sidebar ul li a {
+            padding: 0.8rem 1rem;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            color: #94a3b8; /* Slate 400 */
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 500;
+            transition: all 0.25s ease;
+        }
+
+        #sidebar ul li a i {
+            width: 1.25rem;
+            text-align: center;
+            font-size: 1.1rem;
+            color: #64748b;
+            transition: all 0.25s ease;
+        }
+
+        #sidebar ul li a:hover {
+            background: rgba(255, 255, 255, 0.04);
+            color: #f1f5f9;
+        }
+
+        #sidebar ul li a:hover i {
+            color: #f1f5f9;
+        }
+
+        #sidebar ul li a.active-link {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.15), rgba(79, 70, 229, 0.08));
+            color: #3b82f6;
+            border-left: 3px solid #3b82f6;
+            border-radius: 0 10px 10px 0;
+            padding-left: calc(1rem - 3px);
+        }
+
+        #sidebar ul li a.active-link i {
+            color: #3b82f6;
+        }
+
+        /* Topbar Header */
+        .topbar {
+            background: #ffffff;
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 999;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .breadcrumb-item a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.85rem;
+        }
+
+        .breadcrumb-item.active {
+            color: var(--text-primary);
+            font-weight: 500;
+            font-size: 0.85rem;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .date-badge {
+            font-size: 0.825rem;
+            color: var(--text-secondary);
+            background: #f1f5f9;
+            padding: 0.4rem 0.8rem;
+            border-radius: 8px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .notify-btn {
+            color: var(--text-secondary);
+            font-size: 1.15rem;
+            position: relative;
+            background: none;
+            border: none;
+            padding: 0.25rem;
+            cursor: pointer;
+            transition: color 0.15s ease;
+        }
+
+        .notify-btn:hover {
+            color: var(--primary);
+        }
+
+        .notify-dot {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            width: 7px;
+            height: 7px;
+            background-color: var(--danger);
+            border-radius: 50%;
+            border: 1.5px solid #fff;
+        }
+
+        .profile-avatar-container {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border-left: 1px solid var(--border-color);
+            padding-left: 1.5rem;
+        }
+
+        .profile-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3b82f6, #4f46e5);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.95rem;
+            border: 2px solid #fff;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .profile-info {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+        }
+
+        .profile-name {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .profile-role {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: capitalize;
+        }
+
+        /* Responsive Elements */
+        #content {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        @media (max-width: 768px) {
+            #sidebar {
+                margin-left: -260px;
+            }
+            #sidebar.active {
+                margin-left: 0;
+            }
+            .topbar {
+                padding: 1rem 1.25rem;
+            }
+        }
+    </style>
+    {% block head_extra %}{% endblock %}
+</head>
+<body>
+    <div class="wrapper">
+        <!-- Sidebar Navigation -->
+        {% if session.logged_in %}
+        <nav id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <i class="fas fa-fingerprint"></i>
+                    <span>SmartAttend</span>
+                </div>
+            </div>
+            
+            <ul class="components flex-grow-1">
+                {% if session.role == 'admin' %}
+                    <li>
+                        <a href="{{ url_for('dashboard.admin_dashboard') }}" class="{% if 'dashboard' in request.path %}active-link{% endif %}">
+                            <i class="fas fa-grid-horizontal"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('students.view_students') }}" class="{% if 'student' in request.path %}active-link{% endif %}">
+                            <i class="fas fa-user-graduate"></i>
+                            <span>Students</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('professors.view_professors') }}" class="{% if 'professor' in request.path %}active-link{% endif %}">
+                            <i class="fas fa-chalkboard-teacher"></i>
+                            <span>Professors</span>
+                        </a>
+                    </li>
+                {% endif %}
+                <li>
+                    <a href="{{ url_for('schedule.manage_schedule') }}" class="{% if 'schedule' in request.path %}active-link{% endif %}">
+                        <i class="fas fa-calendar-days"></i>
+                        <span>Schedule</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('schedule.configure_session') }}" class="{% if 'configure' in request.path or 'live' in request.path %}active-link{% endif %}">
+                        <i class="fas fa-video"></i>
+                        <span>Live Attendance</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('attendance.manual_attendance') }}" class="{% if 'manual' in request.path %}active-link{% endif %}">
+                        <i class="fas fa-circle-check"></i>
+                        <span>Manual Entry</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('attendance.view_attendance_log') }}" class="{% if 'log' in request.path %}active-link{% endif %}">
+                        <i class="fas fa-clock-rotate-left"></i>
+                        <span>Attendance Log</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="p-3 border-top border-secondary border-opacity-10">
+                <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-danger w-100 btn-saas align-items-center justify-content-center d-flex gap-2">
+                    <i class="fas fa-arrow-right-from-bracket"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </nav>
+        {% endif %}
+
+        <!-- Content Area -->
+        <div id="content" class="bg-light">
+            {% if session.logged_in %}
+            <!-- Topbar Header -->
+            <header class="topbar">
+                <div class="d-flex align-items-center gap-3">
+                    <button type="button" id="sidebarCollapse" class="btn btn-light btn-sm border-0 d-md-none">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <!-- Dynamic Breadcrumb Navigation -->
+                    <nav aria-label="breadcrumb" class="d-none d-sm-block m-0">
+                        <ol class="breadcrumb m-0">
+                            <li class="breadcrumb-item"><a href="#">Home</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">{% block breadcrumb %}{% endblock %}</li>
+                        </ol>
+                    </nav>
+                </div>
+                
+                <div class="topbar-right">
+                    <!-- Current Date Badge -->
+                    <div class="date-badge">
+                        <i class="far fa-calendar"></i>
+                        <span id="topbar-current-date"></span>
+                    </div>
+
+                    <!-- Notifications -->
+                    <button class="notify-btn">
+                        <i class="far fa-bell"></i>
+                        <span class="notify-dot"></span>
+                    </button>
+
+                    <!-- Profile Avatar -->
+                    <div class="profile-avatar-container">
+                        <div class="profile-avatar">
+                            {{ session.username[0]|upper if session.username else 'A' }}
+                        </div>
+                        <div class="profile-info">
+                            <span class="profile-name">{{ session.username }}</span>
+                            <span class="profile-role">{{ session.role }}</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            {% endif %}
+
+            <!-- Main Page Content -->
+            <main class="flex-grow-1 p-4 p-md-5 custom-scrollbar fade-in-content">
+                <!-- Flash Notification Banner -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                {% for category, message in messages %}
+                                    <div class="alert alert-dismissible fade show border-0 shadow-sm p-3 mb-2 d-flex align-items-center
+                                        {% if category == 'danger' %} alert-danger text-danger bg-danger bg-opacity-10
+                                        {% elif category == 'success' %} alert-success text-success bg-success bg-opacity-10
+                                        {% elif category == 'warning' %} alert-warning text-warning bg-warning bg-opacity-10
+                                        {% else %} alert-primary text-primary bg-primary bg-opacity-10
+                                        {% endif %}" role="alert">
+                                        <div>
+                                            <i class="fas {% if category == 'success' %}fa-circle-check{% elif category == 'danger' %}fa-circle-exclamation{% else %}fa-circle-info{% endif %} me-2"></i>
+                                            {{ message }}
+                                        </div>
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endwith %}
+
+                {% block content %}{% endblock %}
+            </main>
+
+            <!-- Sticky Footer -->
+            <footer class="p-3 bg-white text-center text-muted border-top border-light text-xs" style="font-size: 0.8rem;">
+                &copy; {{ now.year if now is defined else 2026 }} Smart Attendance System. All rights reserved.
+            </footer>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle JS (includes Popper) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Set dynamic date in topbar
+        const dateOptions = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
+        const dateEl = document.getElementById('topbar-current-date');
+        if (dateEl) {
+            dateEl.innerText = new Date().toLocaleDateString('en-US', dateOptions);
+        }
+
+        // Toggle Sidebar on mobile view
+        const sidebarCollapse = document.getElementById('sidebarCollapse');
+        const sidebar = document.getElementById('sidebar');
+        if (sidebarCollapse && sidebar) {
+            sidebarCollapse.addEventListener('click', () => {
+                sidebar.classList.toggle('active');
+            });
+        }
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

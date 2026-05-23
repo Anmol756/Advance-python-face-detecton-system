@@ -1,0 +1,240 @@
+{% extends "layout.html" %}
+
+{% block page_title %}Professor Dashboard{% endblock %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+<style>
+    /* Gradient themes using variables */
+    .bg-gradient-indigo-premium {
+        background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+        border: none;
+    }
+    .bg-gradient-emerald-premium {
+        background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+        border: none;
+    }
+    .bg-gradient-rose-premium {
+        background: linear-gradient(135deg, #ef4444 0%, #f87171 100%);
+        border: none;
+    }
+    
+    .quick-action-link {
+        display: flex;
+        align-items: center;
+        padding: 0.85rem 1.25rem;
+        background-color: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        color: var(--text-primary);
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.2s ease-in-out;
+    }
+    .quick-action-link:hover {
+        background-color: rgba(37, 99, 235, 0.05);
+        border-color: rgba(37, 99, 235, 0.2);
+        color: var(--primary);
+        transform: translateY(-1px);
+    }
+    .quick-action-icon {
+        padding: 0.6rem;
+        border-radius: 8px;
+        margin-right: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.2s ease-in-out;
+    }
+    .quick-action-link:hover .quick-action-icon {
+        transform: scale(1.05);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <!-- Welcome Header & Live Clock -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-3 border-bottom border-light">
+        <div>
+            <h2 class="h3 mb-1 font-weight-bold">Welcome, Professor {{ session.username }}!</h2>
+            <p class="text-muted mb-0">Here is your teaching schedule and student attendance logs for today.</p>
+        </div>
+        <div class="mt-3 mt-md-0 d-flex align-items-center bg-white p-3 rounded-4 shadow-sm border border-light">
+            <div class="me-3 bg-primary bg-opacity-10 p-2.5 rounded-3 text-primary">
+                <i class="fas fa-clock fs-5"></i>
+            </div>
+            <div>
+                <div id="dashboard-clock" class="fs-5 font-weight-bold text-dark font-monospace">00:00:00 AM</div>
+                <div id="dashboard-date" class="text-muted text-uppercase" style="font-size: 0.65rem; font-weight: 600; letter-spacing: 0.5px;">Saturday, May 23, 2026</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Cards Grid -->
+    <div class="row g-4 mb-4">
+        <!-- Classes Today -->
+        <div class="col-md-4">
+            <div class="saas-card bg-gradient-indigo-premium text-white d-flex align-items-center justify-content-between h-100">
+                <div>
+                    <span class="text-white-50 text-uppercase font-weight-bold tracking-wider" style="font-size: 0.7rem;">Scheduled Today</span>
+                    <h3 class="display-6 font-weight-bold my-1 text-white"><span class="stat-count" data-target="{{ total_periods }}">0</span></h3>
+                    <span class="text-white-50" style="font-size: 0.75rem;">Total classes in institution</span>
+                </div>
+                <i class="fas fa-calendar-day fs-1 text-white-50 opacity-25"></i>
+            </div>
+        </div>
+
+        <!-- Total Students -->
+        <div class="col-md-4">
+            <div class="saas-card bg-gradient-emerald-premium text-white d-flex align-items-center justify-content-between h-100">
+                <div>
+                    <span class="text-white-50 text-uppercase font-weight-bold tracking-wider" style="font-size: 0.7rem;">Total Registered Students</span>
+                    <h3 class="display-6 font-weight-bold my-1 text-white"><span class="stat-count" data-target="{{ total_students }}">0</span></h3>
+                    <span class="text-white-50" style="font-size: 0.75rem;">Across all branches</span>
+                </div>
+                <i class="fas fa-users fs-1 text-white-50 opacity-25"></i>
+            </div>
+        </div>
+
+        <!-- Attendance Logs Today -->
+        <div class="col-md-4">
+            <div class="saas-card bg-gradient-rose-premium text-white d-flex align-items-center justify-content-between h-100">
+                <div>
+                    <span class="text-white-50 text-uppercase font-weight-bold tracking-wider" style="font-size: 0.7rem;">Attendance Logged Today</span>
+                    <h3 class="display-6 font-weight-bold my-1 text-white"><span class="stat-count" data-target="{{ today_attendance }}">0</span></h3>
+                    <span class="text-white-50" style="font-size: 0.75rem;">In all active periods</span>
+                </div>
+                <i class="fas fa-fingerprint fs-1 text-white-50 opacity-25"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Timeline & Quick Actions Grid -->
+    <div class="row g-4">
+        <!-- Today's Schedule Timeline -->
+        <div class="col-lg-8">
+            <div class="saas-card h-100 d-flex flex-column justify-content-between">
+                <div>
+                    <h4 class="h5 mb-4 font-weight-bold d-flex align-items-center">
+                        <i class="fas fa-calendar-alt text-primary me-2"></i> Today's Schedule Timeline
+                    </h4>
+
+                    {% if schedule_items %}
+                    <div class="d-flex flex-column gap-3">
+                        {% for item in schedule_items %}
+                        <div class="p-3 rounded-3 border transition-all 
+                            {% if item.is_active %}
+                                bg-primary bg-opacity-10 border-primary shadow-sm
+                            {% elif item.is_past %}
+                                bg-light border-light opacity-50
+                            {% else %}
+                                bg-white border-light hover:border-secondary-subtle
+                            {% endif %}">
+                            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+                                <div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="fs-6 font-weight-bold text-dark">{{ item.name }}</span>
+                                        {% if item.is_active %}
+                                        <span class="badge bg-primary rounded-1 uppercase tracking-wider" style="font-size: 0.65rem;">Active</span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="text-muted mt-1" style="font-size: 0.8rem;">
+                                        Branch: <span class="font-weight-semibold text-dark">{{ item.branch or 'N/A' }}</span> | 
+                                        Semester: <span class="font-weight-semibold text-dark">{{ item.semester or 'N/A' }}</span>
+                                    </div>
+                                </div>
+                                <div class="mt-2 mt-md-0 d-flex align-items-center gap-3">
+                                    <div class="text-md-end">
+                                        <div class="small font-weight-bold text-dark">{{ item.start }} - {{ item.end }}</div>
+                                        <div class="text-uppercase text-muted" style="font-size: 0.6rem; font-weight: 600;">Period Hours</div>
+                                    </div>
+                                    <div class="bg-light p-2 rounded-3 text-muted" style="font-size: 0.85rem;">
+                                        <i class="fas fa-clock"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <div class="bg-light p-3 rounded-circle d-inline-block text-muted mb-2">
+                            <i class="fas fa-calendar-times fs-4"></i>
+                        </div>
+                        <p class="text-muted mb-0" style="font-size: 0.875rem;">No periods scheduled today.</p>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="border-top border-light pt-3 mt-4 d-flex justify-content-between align-items-center" style="font-size: 0.8rem;">
+                    <span class="text-muted"><i class="fas fa-info-circle me-1"></i> Schedules are managed by administrator</span>
+                    <a href="{{ url_for('schedule.manage_schedule') }}" class="text-primary text-decoration-none font-weight-semibold">View Calendar &rarr;</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions & Recent Logs -->
+        <div class="col-lg-4 d-flex flex-column gap-4">
+            <!-- Quick Actions -->
+            <div class="saas-card">
+                <h4 class="h5 mb-3 font-weight-bold d-flex align-items-center">
+                    <i class="fas fa-bolt text-primary me-2"></i> Quick Actions
+                </h4>
+                <div class="d-flex flex-column gap-2.5">
+                    <a href="{{ url_for('schedule.configure_session') }}" class="quick-action-link">
+                        <div class="quick-action-icon bg-primary bg-opacity-10 text-primary">
+                            <i class="fas fa-sliders"></i>
+                        </div>
+                        Configure Live Feed
+                    </a>
+                    <a href="{{ url_for('attendance.live_attendance') }}" class="quick-action-link">
+                        <div class="quick-action-icon bg-success bg-opacity-10 text-success">
+                            <i class="fas fa-video"></i>
+                        </div>
+                        Start Live Attendance
+                    </a>
+                    <a href="{{ url_for('attendance.manual_attendance') }}" class="quick-action-link">
+                        <div class="quick-action-icon bg-warning bg-opacity-10 text-warning">
+                            <i class="fas fa-circle-check"></i>
+                        </div>
+                        Mark Manual Entry
+                    </a>
+                    <a href="{{ url_for('attendance.view_attendance_log') }}" class="quick-action-link">
+                        <div class="quick-action-icon bg-danger bg-opacity-10 text-danger">
+                            <i class="fas fa-history"></i>
+                        </div>
+                        View Logs & Reports
+                    </a>
+                </div>
+            </div>
+
+            <!-- Recent Class Logs -->
+            <div class="saas-card flex-grow-1">
+                <h4 class="h5 mb-3 font-weight-bold d-flex align-items-center">
+                    <i class="fas fa-list-ul text-primary me-2"></i> Recent Class Logs
+                </h4>
+                {% if recent_activity %}
+                <div class="activity-timeline">
+                    {% for act in recent_activity %}
+                    <div class="activity-item">
+                        <div class="activity-dot logged"></div>
+                        <div class="ms-2 ps-1">
+                            <div class="small font-weight-bold text-dark">{{ act.name }}</div>
+                            <div class="text-muted" style="font-size: 0.75rem;">
+                                {{ act.period }} | {{ act.time.split(' ')[1] if ' ' in act.time else act.time }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted text-center small py-3 mb-0">No recent attendance logged today.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}
