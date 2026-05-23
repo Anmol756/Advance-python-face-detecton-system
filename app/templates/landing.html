@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,8 +12,9 @@
     <!-- Google Fonts Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
     <style>
         :root {
             --primary: #2563eb;
@@ -32,6 +34,11 @@
             color: var(--text-dark);
             margin: 0;
             overflow-x: hidden;
+        }
+
+        /* Override tiny small sizes to make them medium and highly readable */
+        small, .small {
+            font-size: 0.92rem !important;
         }
 
         .navbar {
@@ -169,6 +176,7 @@
         }
     </style>
 </head>
+
 <body>
     <!-- Navbar Header -->
     <nav class="navbar navbar-expand-lg sticky-top py-3">
@@ -191,11 +199,14 @@
             <div class="container px-4">
                 <div class="row justify-content-center">
                     <div class="col-lg-9">
-                        <h1 class="display-4 fw-extrabold text-white mb-3" style="font-weight: 800; letter-spacing: -1px;">
+                        <h1 class="display-4 fw-extrabold text-white mb-3"
+                            style="font-weight: 800; letter-spacing: -1px;">
                             Revolutionize Attendance Tracking
                         </h1>
-                        <p class="lead text-white text-opacity-75 mb-5 mx-auto" style="max-width: 680px; font-weight: 300;">
-                            Experience seamless and secure student attendance management using advanced, real-time facial recognition technology.
+                        <p class="lead text-white text-opacity-75 mb-5 mx-auto"
+                            style="max-width: 680px; font-weight: 300;">
+                            Experience seamless and secure student attendance management using advanced, real-time
+                            facial recognition technology.
                         </p>
                         <a href="{{ url_for('auth.login') }}" class="btn-cta">
                             <span>Get Started Today</span>
@@ -209,38 +220,44 @@
         <!-- How It Works Section -->
         <section class="container py-5 my-5">
             <div class="text-center mb-5">
-                <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill font-weight-semibold mb-2">Process flow</span>
+                <span
+                    class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill font-weight-semibold mb-2">Process
+                    flow</span>
                 <h2 class="h1 fw-bold text-dark mb-3">How It Works</h2>
                 <p class="text-muted small">Four simple steps to fully automated attendance tracking.</p>
             </div>
-            
+
             <div class="row g-4">
                 <div class="col-md-6 col-lg-3">
                     <div class="saas-landing-card text-center">
                         <div class="step-icon-circle">1</div>
                         <h4 class="h5 fw-bold text-dark mb-2">Register Profiles</h4>
-                        <p class="text-secondary small mb-0">Securely register student information alongside face registration photos.</p>
+                        <p class="text-secondary small mb-0">Securely register student information alongside face
+                            registration photos.</p>
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-3">
                     <div class="saas-landing-card text-center">
                         <div class="step-icon-circle">2</div>
                         <h4 class="h5 fw-bold text-dark mb-2">Configure Session</h4>
-                        <p class="text-secondary small mb-0">Select branch, semester, and target subject filter options for class session matching.</p>
+                        <p class="text-secondary small mb-0">Select branch, semester, and target subject filter options
+                            for class session matching.</p>
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-3">
                     <div class="saas-landing-card text-center">
                         <div class="step-icon-circle">3</div>
                         <h4 class="h5 fw-bold text-dark mb-2">Live Camera Feed</h4>
-                        <p class="text-secondary small mb-0">Deploy camera feed; the AI model performs live liveness checks and logs faces.</p>
+                        <p class="text-secondary small mb-0">Deploy camera feed; the AI model performs live liveness
+                            checks and logs faces.</p>
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-3">
                     <div class="saas-landing-card text-center">
                         <div class="step-icon-circle">4</div>
                         <h4 class="h5 fw-bold text-dark mb-2">Audit & Insights</h4>
-                        <p class="text-secondary small mb-0">View comprehensive logs, filter attendance sheets, and export reports with ease.</p>
+                        <p class="text-secondary small mb-0">View comprehensive logs, filter attendance sheets, and
+                            export reports with ease.</p>
                     </div>
                 </div>
             </div>
@@ -250,9 +267,12 @@
         <section class="py-5 bg-white border-top border-bottom border-light">
             <div class="container py-4">
                 <div class="text-center mb-5">
-                    <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill font-weight-semibold mb-2">Core Benefits</span>
+                    <span
+                        class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill font-weight-semibold mb-2">Core
+                        Benefits</span>
                     <h2 class="h1 fw-bold text-dark mb-3">Why Choose SmartAttend?</h2>
-                    <p class="text-muted small">Experience robust performance, advanced computer vision, and state-of-the-art admin control.</p>
+                    <p class="text-muted small">Experience robust performance, advanced computer vision, and
+                        state-of-the-art admin control.</p>
                 </div>
 
                 <div class="row g-4">
@@ -260,28 +280,32 @@
                         <div class="saas-landing-card text-center">
                             <div class="icon-circle"><i class="fas fa-shield-halved"></i></div>
                             <h4 class="h5 fw-bold text-dark mb-2">Anti-Spoofing AI</h4>
-                            <p class="text-secondary small mb-0">Built-in eye blink monitoring and EAR thresholds check for face liveness.</p>
+                            <p class="text-secondary small mb-0">Built-in eye blink monitoring and EAR thresholds check
+                                for face liveness.</p>
                         </div>
                     </div>
                     <div class="col-md-6 col-lg-3">
                         <div class="saas-landing-card text-center">
                             <div class="icon-circle"><i class="fas fa-chart-pie"></i></div>
                             <h4 class="h5 fw-bold text-dark mb-2">AI-Powered Insights</h4>
-                            <p class="text-secondary small mb-0">Query real-time statistics and generate attendance percentage trend insights instantly.</p>
+                            <p class="text-secondary small mb-0">Query real-time statistics and generate attendance
+                                percentage trend insights instantly.</p>
                         </div>
                     </div>
                     <div class="col-md-6 col-lg-3">
                         <div class="saas-landing-card text-center">
                             <div class="icon-circle"><i class="fas fa-bolt"></i></div>
                             <h4 class="h5 fw-bold text-dark mb-2">Acknowledgment Loop</h4>
-                            <p class="text-secondary small mb-0">Highly optimized socket connection guarantees responsive, lightweight frame streaming.</p>
+                            <p class="text-secondary small mb-0">Highly optimized socket connection guarantees
+                                responsive, lightweight frame streaming.</p>
                         </div>
                     </div>
                     <div class="col-md-6 col-lg-3">
                         <div class="saas-landing-card text-center">
                             <div class="icon-circle"><i class="fas fa-file-csv"></i></div>
                             <h4 class="h5 fw-bold text-dark mb-2">Clean Audit Trail</h4>
-                            <p class="text-secondary small mb-0">Log manual records, trace class periods, and export standard Excel logs securely.</p>
+                            <p class="text-secondary small mb-0">Log manual records, trace class periods, and export
+                                standard Excel logs securely.</p>
                         </div>
                     </div>
                 </div>
@@ -294,15 +318,19 @@
         <div class="container">
             <div class="row justify-content-between align-items-center g-3">
                 <div class="col-md-6 text-md-start">
-                    <span class="small font-weight-semibold">&copy; {{ now.year if now is defined else 2025 }} SmartAttend System. All rights reserved.</span>
+                    <span class="small font-weight-semibold">&copy; {{ now.year if now is defined else 2025 }}
+                        SmartAttend System. All rights reserved.</span>
                 </div>
                 <div class="col-md-6 text-md-end d-flex justify-content-center justify-content-md-end gap-3 fs-5">
-                    <a href="https://github.com/Anmol756" target="_blank" rel="noopener noreferrer"><i class="fab fa-github"></i></a>
-                    <a href="https://www.linkedin.com/in/anmol-sharma-45215a296/" target="_blank" rel="noopener noreferrer"><i class="fab fa-linkedin"></i></a>
+                    <a href="https://github.com/Anmol756" target="_blank" rel="noopener noreferrer"><i
+                            class="fab fa-github"></i></a>
+                    <a href="https://www.linkedin.com/in/anmol-sharma-45215a296/" target="_blank"
+                        rel="noopener noreferrer"><i class="fab fa-linkedin"></i></a>
                 </div>
             </div>
             <div class="mt-4 pt-3 border-top border-secondary border-opacity-10 text-xs">
-                <span style="font-size: 0.725rem;">Developed by Anmol Sharma using Flask, OpenCV, face-recognition, Bootstrap 5, and Socket.IO.</span>
+                <span style="font-size: 0.725rem;">Developed by Anmol Sharma using Flask, OpenCV, face-recognition,
+                    Bootstrap 5, and Socket.IO.</span>
             </div>
         </div>
     </footer>
@@ -310,4 +338,5 @@
     <!-- Bootstrap Bundle JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

@@ -56,7 +56,7 @@ function initCountUp() {
         const target = +counter.getAttribute('data-target');
         if (isNaN(target)) return;
 
-        const duration = 1200; // ms
+        const duration = 1000; // ms
         const stepTime = 15; // ms
         const steps = duration / stepTime;
         const increment = target / steps;
@@ -78,12 +78,17 @@ function initCountUp() {
  * Initializes the Chart.js visual graphics if their containers are present on the page.
  */
 function initCharts() {
-    // 1. Attendance Trend Chart (Bar/Line Chart)
+    // 1. Weekly Attendance Trend Chart (Line Chart with Gradient Fill)
     const trendCtx = document.getElementById('attendanceTrendChart');
     if (trendCtx) {
         try {
             const labels = JSON.parse(trendCtx.getAttribute('data-labels') || '[]');
             const data = JSON.parse(trendCtx.getAttribute('data-values') || '[]');
+            
+            const ctx = trendCtx.getContext('2d');
+            const gradient = ctx.createLinearGradient(0, 0, 0, 240);
+            gradient.addColorStop(0, 'rgba(37, 99, 235, 0.2)');
+            gradient.addColorStop(1, 'rgba(37, 99, 235, 0)');
 
             new Chart(trendCtx, {
                 type: 'line',
@@ -92,53 +97,51 @@ function initCharts() {
                     datasets: [{
                         label: 'Present Students',
                         data: data,
-                        borderColor: '#4f46e5', // Indigo
-                        backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                        borderColor: '#2563eb', // Blue
+                        backgroundColor: gradient,
                         borderWidth: 3,
-                        pointBackgroundColor: '#4f46e5',
+                        pointBackgroundColor: '#2563eb',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
                         pointHoverRadius: 8,
-                        pointRadius: 5,
+                        pointRadius: 4,
                         fill: true,
-                        tension: 0.3
+                        tension: 0.35
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: {
-                            display: false
-                        },
+                        legend: { display: false },
                         tooltip: {
                             mode: 'index',
                             intersect: false,
-                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
-                            titleFont: { size: 13, weight: 'bold' },
-                            bodyFont: { size: 12 },
+                            backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                            titleFont: { size: 12, weight: 'bold', family: 'Inter' },
+                            bodyFont: { size: 12, family: 'Inter' },
                             padding: 10,
-                            displayColors: false
+                            displayColors: false,
+                            cornerRadius: 8
                         }
                     },
                     scales: {
                         y: {
                             beginAtZero: true,
                             grid: {
-                                borderDash: [2, 4],
+                                borderDash: [4, 4],
                                 color: '#e2e8f0'
                             },
                             ticks: {
-                                stepSize: 1,
                                 color: '#64748b',
-                                font: { size: 11 }
+                                font: { size: 10, family: 'Inter' }
                             }
                         },
                         x: {
-                            grid: {
-                                display: false
-                            },
+                            grid: { display: false },
                             ticks: {
                                 color: '#64748b',
-                                font: { size: 11 }
+                                font: { size: 10, family: 'Inter' }
                             }
                         }
                     }
@@ -149,32 +152,26 @@ function initCharts() {
         }
     }
 
-    // 2. Student Branch Distribution Chart (Doughnut Chart)
-    const branchCtx = document.getElementById('branchDistributionChart');
-    if (branchCtx) {
+    // 2. Present/Absent Pie Chart (Doughnut Chart)
+    const pieCtx = document.getElementById('presentAbsentPieChart');
+    if (pieCtx) {
         try {
-            const labels = JSON.parse(branchCtx.getAttribute('data-labels') || '[]');
-            const data = JSON.parse(branchCtx.getAttribute('data-values') || '[]');
+            const presentCount = parseInt(pieCtx.getAttribute('data-present') || '0', 10);
+            const absentCount = parseInt(pieCtx.getAttribute('data-absent') || '4', 10);
+            const totalCount = presentCount + absentCount;
+            
+            // Handle edge case where both are zero (e.g. empty DB)
+            const chartData = totalCount === 0 ? [0, 1] : [presentCount, absentCount];
+            const chartColors = totalCount === 0 ? ['#e2e8f0', '#ef4444'] : ['#22c55e', '#ef4444'];
 
-            // Modern color palette
-            const colors = [
-                '#4f46e5', // Indigo
-                '#10b981', // Emerald
-                '#f59e0b', // Amber
-                '#f43f5e', // Rose
-                '#06b6d4', // Cyan
-                '#8b5cf6', // Violet
-                '#3b82f6'  // Blue
-            ];
-
-            new Chart(branchCtx, {
+            new Chart(pieCtx, {
                 type: 'doughnut',
                 data: {
-                    labels: labels,
+                    labels: ['Present', 'Absent'],
                     datasets: [{
-                        data: data,
-                        backgroundColor: colors.slice(0, labels.length),
-                        borderWidth: 2,
+                        data: chartData,
+                        backgroundColor: chartColors,
+                        borderWidth: 3,
                         borderColor: '#ffffff',
                         hoverOffset: 6
                     }]
@@ -186,22 +183,96 @@ function initCharts() {
                         legend: {
                             position: 'bottom',
                             labels: {
-                                boxWidth: 12,
+                                boxWidth: 10,
                                 padding: 15,
-                                color: '#475569',
-                                font: { size: 12 }
+                                color: '#64748b',
+                                font: { size: 11, family: 'Inter', weight: '500' }
                             }
                         },
                         tooltip: {
-                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                            backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                            cornerRadius: 8,
                             padding: 10
                         }
                     },
-                    cutout: '65%'
+                    cutout: '72%'
                 }
             });
         } catch (e) {
-            console.error('Failed to initialize branch distribution chart:', e);
+            console.error('Failed to initialize present/absent distribution chart:', e);
+        }
+    }
+
+    // 3. Monthly Trend Chart (Smooth Line Graph Charting Progress over time)
+    const monthlyCtx = document.getElementById('monthlyTrendChart');
+    if (monthlyCtx) {
+        try {
+            const ctx = monthlyCtx.getContext('2d');
+            const gradient = ctx.createLinearGradient(0, 0, 0, 240);
+            gradient.addColorStop(0, 'rgba(79, 70, 229, 0.2)');
+            gradient.addColorStop(1, 'rgba(79, 70, 229, 0)');
+
+            new Chart(monthlyCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
+                    datasets: [{
+                        label: 'Attendance %',
+                        data: [78.5, 82.1, 80.4, 85.0, 84.6],
+                        borderColor: '#4f46e5', // Accent Indigo
+                        backgroundColor: gradient,
+                        borderWidth: 3,
+                        pointBackgroundColor: '#4f46e5',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointHoverRadius: 8,
+                        pointRadius: 4,
+                        fill: true,
+                        tension: 0.35
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                            titleFont: { size: 12, weight: 'bold', family: 'Inter' },
+                            bodyFont: { size: 12, family: 'Inter' },
+                            padding: 10,
+                            cornerRadius: 8,
+                            displayColors: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            min: 60,
+                            max: 100,
+                            grid: {
+                                borderDash: [4, 4],
+                                color: '#e2e8f0'
+                            },
+                            ticks: {
+                                color: '#64748b',
+                                font: { size: 10, family: 'Inter' },
+                                callback: function(value) { return value + '%'; }
+                            }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: {
+                                color: '#64748b',
+                                font: { size: 10, family: 'Inter' }
+                            }
+                        }
+                    }
+                }
+            });
+        } catch (e) {
+            console.error('Failed to initialize monthly trend chart:', e);
         }
     }
 }

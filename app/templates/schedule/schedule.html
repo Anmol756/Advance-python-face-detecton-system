@@ -8,18 +8,18 @@
     <div class="row g-4">
         <!-- Add New Period Form Column -->
         <div class="col-lg-4">
-            <div class="saas-card">
-                <h4 class="h5 mb-3 font-weight-bold d-flex align-items-center">
+            <div class="saas-card shadow-sm border border-light">
+                <h4 class="h5 mb-4 font-weight-bold d-flex align-items-center">
                     <i class="fas fa-calendar-plus text-primary me-2"></i> Add New Period
                 </h4>
                 <form method="POST" action="{{ url_for('schedule.manage_schedule') }}">
                     <div class="mb-3">
-                        <label for="period_name" class="form-label small font-weight-semibold text-muted mb-1">Period Name</label>
+                        <label for="period_name" class="form-label small font-weight-bold text-muted mb-1">Period Name</label>
                         <input type="text" id="period_name" name="period_name" class="form-control saas-input" placeholder="e.g. Data Structures" value="{{ form_data.period_name if form_data else '' }}" required>
                     </div>
                     
                     <div class="mb-3">
-                        <label for="prof_id" class="form-label small font-weight-semibold text-muted mb-1">Assigned Professor</label>
+                        <label for="prof_id" class="form-label small font-weight-bold text-muted mb-1">Assigned Professor</label>
                         <select id="prof_id" name="prof_id" class="form-select saas-select" required>
                             <option value="">Select Professor</option>
                             {% for prof in professors %}
@@ -30,18 +30,18 @@
 
                     <div class="row g-2 mb-3">
                         <div class="col-6">
-                            <label for="start_time" class="form-label small font-weight-semibold text-muted mb-1">Start Time</label>
+                            <label for="start_time" class="form-label small font-weight-bold text-muted mb-1">Start Time</label>
                             <input type="time" id="start_time" name="start_time" class="form-control saas-input" value="{{ form_data.start_time if form_data else '' }}" required>
                         </div>
                         <div class="col-6">
-                            <label for="end_time" class="form-label small font-weight-semibold text-muted mb-1">End Time</label>
+                            <label for="end_time" class="form-label small font-weight-bold text-muted mb-1">End Time</label>
                             <input type="time" id="end_time" name="end_time" class="form-control saas-input" value="{{ form_data.end_time if form_data else '' }}" required>
                         </div>
                     </div>
 
                     <div class="row g-2 mb-3">
                         <div class="col-6">
-                            <label for="branch" class="form-label small font-weight-semibold text-muted mb-1">Branch</label>
+                            <label for="branch" class="form-label small font-weight-bold text-muted mb-1">Branch</label>
                             <select id="branch" name="branch" class="form-select saas-select" required>
                                 <option value="">Select Branch</option>
                                 {% for b in available_branches %}
@@ -50,7 +50,7 @@
                             </select>
                         </div>
                         <div class="col-6">
-                            <label for="semester" class="form-label small font-weight-semibold text-muted mb-1">Semester</label>
+                            <label for="semester" class="form-label small font-weight-bold text-muted mb-1">Semester</label>
                             <select id="semester" name="semester" class="form-select saas-select" required>
                                 <option value="">Select Semester</option>
                                 {% for s in available_semesters %}
@@ -61,8 +61,8 @@
                     </div>
 
                     <div class="mb-4">
-                        <label for="description" class="form-label small font-weight-semibold text-muted mb-1">Description (Optional)</label>
-                        <textarea id="description" name="description" rows="2" class="form-control saas-input" placeholder="Topics, topics outline...">{{ form_data.description if form_data else '' }}</textarea>
+                        <label for="description" class="form-label small font-weight-bold text-muted mb-1">Description (Optional)</label>
+                        <textarea id="description" name="description" rows="2" class="form-control saas-input" placeholder="Topics, syllabus outline...">{{ form_data.description if form_data else '' }}</textarea>
                     </div>
 
                     <button type="submit" class="btn btn-saas btn-saas-primary w-100 glow-primary">
@@ -74,48 +74,48 @@
 
         <!-- Timetable Schedule List Column -->
         <div class="col-lg-8">
-            <div class="saas-card p-0 overflow-hidden">
-                <div class="p-4 border-bottom border-light">
-                    <h4 class="h5 mb-0 font-weight-bold">Existing Schedule</h4>
+            <div class="saas-card p-0 overflow-hidden shadow-sm border border-light" style="border-radius: 18px;">
+                <div class="p-4 border-bottom border-light bg-white">
+                    <h4 class="h5 mb-0 font-weight-bold">Existing Timetable</h4>
                 </div>
                 <div class="table-responsive">
                     {% if schedule %}
-                    <table class="table saas-table table-hover align-middle">
+                    <table class="table saas-table table-hover align-middle mb-0">
                         <thead>
                             <tr>
-                                <th>Period Name</th>
+                                <th style="padding-left: 1.5rem;">Period Name</th>
                                 <th>Timing</th>
                                 <th>Professor</th>
                                 <th>Branch/Sem</th>
-                                <th class="text-end">Actions</th>
+                                <th class="text-end" style="padding-right: 1.5rem;">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for period in schedule %}
                             <tr>
-                                <td>
+                                <td style="padding-left: 1.5rem;">
                                     <div class="font-weight-bold text-dark">{{ period.period_name }}</div>
                                     {% if period.description %}
-                                    <small class="text-muted d-block" style="font-size: 0.75rem; max-width: 200px; text-overflow: ellipsis; white-space: nowrap; overflow: hidden;">
+                                    <small class="text-muted d-block" style="font-size: 0.9rem; max-width: 250px; text-overflow: ellipsis; white-space: nowrap; overflow: hidden;">
                                         {{ period.description }}
                                     </small>
                                     {% endif %}
                                 </td>
                                 <td>
-                                    <span class="badge bg-light text-dark badge-pill font-monospace" style="font-size: 0.8rem;">
+                                    <span class="badge-pill badge-cooldown font-monospace" style="font-size: 0.925rem;">
                                         <i class="far fa-clock me-1"></i> {{ period.start_time }} - {{ period.end_time }}
                                     </span>
                                 </td>
                                 <td>
-                                    <span class="font-weight-semibold text-dark">{{ period.prof_name }}</span>
+                                    <span class="font-weight-bold text-dark">{{ period.prof_name }}</span>
                                 </td>
                                 <td>
-                                    <span class="text-uppercase text-muted font-weight-bold" style="font-size: 0.75rem;">{{ period.branch if period.branch else 'N/A' }}</span>
-                                    <span class="text-secondary small">/ S{{ period.semester if period.semester else 'N/A' }}</span>
+                                    <span class="text-uppercase text-muted font-weight-bold" style="font-size: 0.925rem;">{{ period.branch if period.branch else 'N/A' }}</span>
+                                    <span class="text-secondary small">/ Semester {{ period.semester if period.semester else 'N/A' }}</span>
                                 </td>
-                                <td class="text-end">
+                                <td class="text-end" style="padding-right: 1.5rem;">
                                     <form action="{{ url_for('schedule.delete_period', period_id=period.period_id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this period and all its associated attendance logs?');" class="m-0">
-                                        <button type="submit" class="btn btn-outline-danger btn-sm py-1 px-2.5" style="font-size: 0.75rem; border-radius: 10px;">
+                                        <button type="submit" class="btn btn-outline-danger btn-sm py-1.5 px-3" style="font-size: 0.95rem; border-radius: 10px;">
                                             <i class="fas fa-trash-can"></i> Delete
                                         </button>
                                     </form>
@@ -129,7 +129,7 @@
                         <div class="bg-light p-3 rounded-circle d-inline-block text-muted mb-2">
                             <i class="fas fa-calendar-xmark fs-4"></i>
                         </div>
-                        <p class="text-muted mb-0" style="font-size: 0.875rem;">No schedule periods defined yet. Add a new period above to build the timetable.</p>
+                        <p class="text-muted mb-0" style="font-size: 1.05rem;">No schedule periods defined yet. Add a new period above to build the timetable.</p>
                     </div>
                     {% endif %}
                 </div>

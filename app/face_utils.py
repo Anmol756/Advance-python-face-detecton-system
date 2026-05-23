@@ -89,7 +89,7 @@ def process_and_encode(image_stream):
             return None
 
         rgb_img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        face_locations = face_recognition.face_locations(rgb_img)
+        face_locations = face_recognition.face_locations(rgb_img, model="hog")
         if not face_locations:
             flash("No face detected in the uploaded image. Please upload a clear photo with a visible face.", "danger")
             return None

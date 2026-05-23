@@ -11,15 +11,15 @@
     <!-- Google Fonts Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     <style>
         :root {
             --primary: #2563eb;
             --accent: #4f46e5;
-            --bg-dark: #0f172a;
-            --card-glass: rgba(15, 23, 42, 0.6);
-            --border-glass: rgba(255, 255, 255, 0.08);
+            --bg-dark: #090d16;
+            --card-glass: rgba(15, 23, 42, 0.55);
+            --border-glass: rgba(255, 255, 255, 0.07);
             --text-secondary: #94a3b8;
         }
 
@@ -29,31 +29,50 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: radial-gradient(circle at 10% 20%, rgba(37, 99, 235, 0.15) 0%, transparent 40%),
-                        radial-gradient(circle at 90% 80%, rgba(79, 70, 229, 0.12) 0%, transparent 40%),
+            background: radial-gradient(circle at 15% 20%, rgba(37, 99, 235, 0.18) 0%, transparent 40%),
+                        radial-gradient(circle at 85% 80%, rgba(79, 70, 229, 0.15) 0%, transparent 45%),
                         var(--bg-dark);
             margin: 0;
             padding: 1.5rem;
             color: #f1f5f9;
+            overflow-x: hidden;
+        }
+
+        /* Override tiny small sizes to make them medium and highly readable */
+        small, .small {
+            font-size: 0.92rem !important;
+        }
+
+        /* Float card entrance animation */
+        @keyframes loginEntrance {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .login-card-container {
             width: 100%;
             max-width: 440px;
             position: relative;
+            animation: loginEntrance 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
         /* Glassmorphic main card */
         .login-card {
             background: var(--card-glass);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--border-glass);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
             border-radius: 24px;
             padding: 3rem 2.5rem;
             z-index: 10;
             position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .login-card:hover {
+            border-color: rgba(255, 255, 255, 0.12);
+            box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.6);
         }
 
         .login-logo {
@@ -62,6 +81,8 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             font-weight: 800;
+            letter-spacing: -1px;
+            filter: drop-shadow(0 2px 8px rgba(37, 99, 235, 0.1));
         }
 
         .login-input-group {
@@ -71,7 +92,7 @@
 
         .login-input-group i {
             position: absolute;
-            left: 1rem;
+            left: 1.1rem;
             top: 50%;
             transform: translateY(-50%);
             color: var(--text-secondary);
@@ -81,23 +102,23 @@
         }
 
         .login-input {
-            background: rgba(255, 255, 255, 0.03);
+            background: rgba(255, 255, 255, 0.02);
             border: 1px solid var(--border-glass);
             color: #f8fafc;
-            padding: 0.85rem 1rem 0.85rem 2.75rem;
+            padding: 0.9rem 1rem 0.9rem 2.9rem;
             border-radius: 12px;
             font-size: 0.95rem;
             width: 100%;
-            transition: all 0.25s ease;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .login-input::placeholder {
-            color: rgba(148, 163, 184, 0.6);
+            color: rgba(148, 163, 184, 0.5);
         }
 
         .login-input:focus {
-            background: rgba(255, 255, 255, 0.06);
-            border-color: rgba(37, 99, 235, 0.5);
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(37, 99, 235, 0.55);
             box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
             outline: none;
             color: #ffffff;
@@ -111,18 +132,22 @@
             background: linear-gradient(135deg, var(--primary), var(--accent));
             border: none;
             color: white;
-            padding: 0.85rem;
-            font-weight: 600;
-            font-size: 1rem;
+            padding: 0.9rem;
+            font-weight: 700;
+            font-size: 0.975rem;
             border-radius: 12px;
             width: 100%;
             box-shadow: 0 4px 15px rgba(37, 99, 235, 0.25);
             transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
         }
 
         .login-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.35);
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.35);
             background: linear-gradient(135deg, #3b82f6, #4f46e5);
         }
 
@@ -131,24 +156,24 @@
         }
 
         .login-hint-box {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.04);
-            border-radius: 14px;
-            padding: 1rem;
+            background: rgba(255, 255, 255, 0.015);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            border-radius: 16px;
+            padding: 1.25rem;
             margin-top: 2rem;
-            font-size: 0.8rem;
+            font-size: 0.825rem;
             color: var(--text-secondary);
         }
         
         .login-hint-box p {
-            margin-bottom: 0.25rem;
+            margin-bottom: 0.35rem;
         }
         .login-hint-box p:last-child {
             margin-bottom: 0;
         }
 
         .form-check-input {
-            background-color: rgba(255, 255, 255, 0.05);
+            background-color: rgba(255, 255, 255, 0.04);
             border-color: var(--border-glass);
             cursor: pointer;
         }
@@ -157,6 +182,17 @@
             background-color: var(--primary);
             border-color: var(--primary);
         }
+
+        .text-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.15s ease;
+        }
+        .text-link:hover {
+            color: #3b82f6;
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -164,8 +200,8 @@
         <!-- Main Form Card -->
         <div class="login-card">
             <div class="text-center mb-4">
-                <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
-                    <i class="fas fa-fingerprint fs-2"></i>
+                <div class="bg-primary bg-opacity-10 text-primary rounded-4 d-inline-flex align-items-center justify-content-center mb-3" style="width: 54px; height: 54px; border: 1px solid rgba(37, 99, 235, 0.15);">
+                    <i class="fas fa-fingerprint fs-3" style="filter: drop-shadow(0 2px 6px rgba(37, 99, 235, 0.2));"></i>
                 </div>
                 <h2 class="login-logo mb-1">SmartAttend</h2>
                 <p class="text-muted small">Sign in to manage face-recognition attendance</p>
@@ -176,13 +212,13 @@
                 {% if messages %}
                     <div class="mb-4">
                         {% for category, message in messages %}
-                            <div class="alert alert-dismissible fade show border-0 p-3 mb-2 d-flex align-items-center text-xs
+                            <div class="alert alert-dismissible fade show border-0 p-3 mb-2 d-flex align-items-center rounded-3 text-xs
                                 {% if category == 'danger' %} alert-danger text-danger bg-danger bg-opacity-10
                                 {% else %} alert-primary text-primary bg-primary bg-opacity-10
                                 {% endif %}" role="alert">
                                 <div>
-                                    <i class="fas fa-circle-exclamation me-2"></i>
-                                    {{ message }}
+                                    <i class="fas fa-circle-exclamation me-2 fs-6"></i>
+                                    <span class="font-weight-semibold">{{ message }}</span>
                                 </div>
                                 <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="alert" aria-label="Close" style="font-size: 0.6rem;"></button>
                             </div>
@@ -207,19 +243,27 @@
                         <input type="checkbox" name="remember_me" id="remember_me" class="form-check-input">
                         <label class="form-check-label text-muted" for="remember_me">Remember me</label>
                     </div>
-                    <a href="#" class="text-primary text-decoration-none hover:underline">Forgot Password?</a>
+                    <a href="#" class="text-link">Forgot Password?</a>
                 </div>
 
                 <button type="submit" class="btn login-btn">
                     <span>Login</span>
-                    <i class="fas fa-arrow-right ms-1 small"></i>
+                    <i class="fas fa-arrow-right small"></i>
                 </button>
             </form>
 
             <div class="login-hint-box text-center">
-                <p class="font-weight-semibold text-light mb-1">Testing Credentials:</p>
-                <p>Admin: <span class="font-monospace text-primary">admin</span> / <span class="font-monospace">adminpass</span></p>
-                <p>Faculty: <span class="font-monospace text-primary">professor1</span> / <span class="font-monospace">profpass</span></p>
+                <div class="small font-weight-bold text-light mb-2">Testing Credentials</div>
+                <div class="d-flex justify-content-around text-xs mt-1">
+                    <div>
+                        <span class="text-white-50">Admin:</span> <span class="font-monospace text-primary">admin</span> / <span class="font-monospace text-white-50">adminpass</span>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-around text-xs mt-1.5">
+                    <div>
+                        <span class="text-white-50">Faculty:</span> <span class="font-monospace text-primary">professor1</span> / <span class="font-monospace text-white-50">profpass</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

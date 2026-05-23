@@ -11,42 +11,51 @@
             <h4 class="h5 mb-0 font-weight-bold">Faculty Members</h4>
             <p class="text-muted small mb-0">Manage university professors and directory records.</p>
         </div>
-        <a href="{{ url_for('professors.add_professor') }}" class="btn btn-saas btn-saas-primary">
+        <a href="{{ url_for('professors.add_professor') }}" class="btn btn-saas btn-saas-primary glow-primary">
             <i class="fas fa-plus"></i> Add Professor
         </a>
     </div>
 
+    <!-- Search/Filter -->
+    <div class="saas-card mb-4 p-3 shadow-sm border border-light d-flex align-items-center justify-content-between">
+        <span class="font-weight-bold text-dark text-xs text-uppercase tracking-wider">Faculty List</span>
+        <div class="position-relative" style="width: 250px;">
+            <input type="text" id="professorsSearchInput" class="form-control saas-input py-2 px-3" placeholder="Search by name or department..." style="font-size: 1.05rem;">
+            <i class="fas fa-search position-absolute text-muted" style="right: 12px; top: 50%; transform: translateY(-50%); font-size: 1.05rem;"></i>
+        </div>
+    </div>
+
     <!-- Professors Grid -->
     {% if professors %}
-    <div class="row g-4">
+    <div class="row g-4" id="professorsGrid">
         {% for professor in professors %}
-        <div class="col-md-6 col-lg-4 col-xl-3">
+        <div class="col-sm-6 col-lg-4 col-xl-3 professor-card-col">
             <div class="saas-card text-center d-flex flex-column align-items-center p-4 h-100 justify-content-between">
                 <div class="d-flex flex-column align-items-center w-100">
                     <!-- Photo Avatar -->
                     <div class="mb-3">
                         {% if professor.photo_data %}
-                        <img src="data:image/jpeg;base64,{{ professor.photo_data }}" alt="{{ professor.name }}" class="rounded-circle border border-2 border-white shadow-sm" style="width: 80px; height: 80px; object-fit: cover;">
+                        <img src="data:image/jpeg;base64,{{ professor.photo_data }}" alt="{{ professor.name }}" class="rounded-circle border border-2 border-white shadow-sm" style="width: 80px; height: 80px; object-fit: cover; box-shadow: var(--shadow-md);">
                         {% else %}
-                        <div class="profile-avatar border border-2 border-white shadow-sm rounded-circle d-flex align-items-center justify-content-center text-white" style="width: 80px; height: 80px; font-size: 1.75rem; background: linear-gradient(135deg, #4f46e5, #6366f1);">
+                        <div class="profile-avatar border border-2 border-white shadow-sm rounded-circle d-flex align-items-center justify-content-center text-white" style="width: 80px; height: 80px; font-size: 1.75rem; background: linear-gradient(135deg, #4f46e5, #6366f1); box-shadow: var(--shadow-md);">
                             {{ professor.name[0]|upper if professor.name else 'P' }}
                         </div>
                         {% endif %}
                     </div>
 
                     <!-- Prof Info -->
-                    <h5 class="h6 font-weight-bold text-dark mb-1">{{ professor.name }}</h5>
-                    <span class="text-muted font-monospace d-block mb-2" style="font-size: 0.75rem;">ID: {{ professor.prof_id }}</span>
-                    <span class="badge bg-primary bg-opacity-10 text-primary badge-pill mb-3">{{ professor.department }} Department</span>
+                    <h5 class="h6 font-weight-bold text-dark mb-1 prof-name-cell">{{ professor.name }}</h5>
+                    <span class="text-muted font-monospace d-block mb-2" style="font-size: 0.95rem;">ID: {{ professor.prof_id }}</span>
+                    <span class="badge bg-primary bg-opacity-10 text-primary badge-pill mb-3 prof-dept-cell">{{ professor.department }} Department</span>
                 </div>
 
                 <!-- Action Triggers -->
                 <div class="w-100 border-top border-light pt-3 d-flex justify-content-center gap-2">
-                    <a href="{{ url_for('professors.view_professor_profile', prof_id=professor.prof_id) }}" class="btn btn-saas btn-saas-secondary btn-sm py-1.5 flex-grow-1" style="font-size: 0.8rem;">
+                    <a href="{{ url_for('professors.view_professor_profile', prof_id=professor.prof_id) }}" class="btn btn-saas btn-saas-secondary btn-sm py-1.5 flex-grow-1" style="font-size: 0.95rem;">
                         <i class="fas fa-user-circle"></i> Profile
                     </a>
                     <form action="{{ url_for('professors.delete_professor', prof_id=professor.prof_id) }}" method="POST" class="m-0 flex-grow-1" onsubmit="return confirm('Are you sure you want to delete Professor {{ professor.name }}? This cannot be undone.');">
-                        <button type="submit" class="btn btn-outline-danger btn-sm py-1.5 w-100" style="font-size: 0.8rem; border-radius: 10px;">
+                        <button type="submit" class="btn btn-outline-danger btn-sm py-1.5 w-100" style="font-size: 0.95rem; border-radius: 10px;">
                             <i class="fas fa-trash-can"></i> Delete
                         </button>
                     </form>
@@ -60,8 +69,33 @@
         <div class="bg-light p-3 rounded-circle d-inline-block text-muted mb-2">
             <i class="fas fa-chalkboard-user fs-4"></i>
         </div>
-        <p class="text-muted mb-0" style="font-size: 0.875rem;">No professors registered yet. Please click the button above to add a faculty member.</p>
+        <p class="text-muted mb-0" style="font-size: 1.05rem;">No professors registered yet. Please click the button above to add a faculty member.</p>
     </div>
     {% endif %}
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('professorsSearchInput');
+    const cards = document.querySelectorAll('.professor-card-col');
+
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            const query = this.value.toLowerCase().trim();
+            cards.forEach(card => {
+                const nameCell = card.querySelector('.prof-name-cell');
+                const deptCell = card.querySelector('.prof-dept-cell');
+                const nameText = nameCell ? nameCell.textContent.toLowerCase() : '';
+                const deptText = deptCell ? deptCell.textContent.toLowerCase() : '';
+                
+                if (nameText.includes(query) || deptText.includes(query)) {
+                    card.style.setProperty('display', '', 'important');
+                } else {
+                    card.style.setProperty('display', 'none', 'important');
+                }
+            });
+        });
+    }
+});
+</script>
 {% endblock %}

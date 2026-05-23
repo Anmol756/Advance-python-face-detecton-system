@@ -15,9 +15,10 @@ import dlib
 import face_recognition
 import requests
 import pytz
-from flask import render_template, request, redirect, url_for, flash, session, send_file, jsonify
+from flask import render_template, request, redirect, url_for, flash, session, send_file, jsonify, current_app
 from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment, PatternFill
+import gc
 
 from app.attendance import attendance_bp
 from app.extensions import (
@@ -554,6 +555,8 @@ def export_attendance():
     )
 
 
+session_frame_cache = {}
+
 # --- SocketIO Handler ---
 
 def register_socketio_handlers(socketio_instance):
@@ -566,21 +569,49 @@ def register_socketio_handlers(socketio_instance):
         detected_gender_for_display = 'N/A'
         session_config = session.get('attendance_config')
 
+        # Frame Skipping Cache logic per socket session
+        sid = request.sid
+        if sid not in session_frame_cache:
+            session_frame_cache[sid] = {'count': 0, 'results': [], 'period': 'N/A'}
+        
+        cache = session_frame_cache[sid]
+        cache['count'] += 1
+        
+        # Process 1 out of 3 frames, return cache for the others if cache is populated
+        if cache['count'] % 3 != 0 and cache['results']:
+            socketio_instance.emit('recognition_result', {
+                'status': 'success',
+                'results': cache['results'],
+                'period': cache['period']
+            })
+            return
+
         try:
             img_data = base64.b64decode(data.split(',')[1])
             np_arr = np.frombuffer(img_data, np.uint8)
             img = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
+            if img is None:
+                raise ValueError("Could not decode image")
             
-            # Downscale image to speed up face_recognition processing (HOG / encoding generation)
-            scale_factor = config.LIVENESS_SCALE_FACTOR
+            # Dynamic Downscaling (target processing width = 320px) to optimize CPU and RAM usage
+            h, w = img.shape[:2]
+            target_w = 320
+            if w > target_w:
+                scale_factor = target_w / w
+            else:
+                scale_factor = 1.0
+                
             small_img = cv2.resize(img, (0, 0), fx=scale_factor, fy=scale_factor)
             rgb_small_img = cv2.cvtColor(small_img, cv2.COLOR_BGR2RGB)
 
-            face_locations = face_recognition.face_locations(rgb_small_img)
+            face_locations = face_recognition.face_locations(rgb_small_img, model="hog")
             encodings = face_recognition.face_encodings(rgb_small_img, face_locations)
 
             conn = db_connect()
             try:
+                # Query schedule periods ONCE per frame and reuse it
+                periods = conn.execute("SELECT period_name, start_time, end_time, prof_name FROM schedule").fetchall()
+                
                 results = []
                 for i, (encoding, location) in enumerate(zip(encodings, face_locations)):
                     name, roll_no, student_gender_from_db, student_age_from_db = None, None, 'N/A', 'N/A'
@@ -628,7 +659,6 @@ def register_socketio_handlers(socketio_instance):
 
                     # --- Session / Schedule check ---
                     current_time_sec = time.time()
-                    session_config = session.get('attendance_config')
                     student_meets_criteria = False
                     current_period = None
                     current_prof_name = None
@@ -648,7 +678,6 @@ def register_socketio_handlers(socketio_instance):
                         if student_meets_criteria:
                             local_tz = pytz.timezone(config.TIMEZONE)
                             local_now_time = datetime.now(local_tz).time()
-                            periods = conn.execute("SELECT period_name, start_time, end_time, prof_name FROM schedule").fetchall()
                             for period_rec in periods:
                                 period_start = datetime.strptime(period_rec['start_time'], '%H:%M').time()
                                 period_end = datetime.strptime(period_rec['end_time'], '%H:%M').time()
@@ -761,13 +790,16 @@ def register_socketio_handlers(socketio_instance):
                 if session_config:
                     local_tz = pytz.timezone(config.TIMEZONE)
                     local_now_time = datetime.now(local_tz).time()
-                    periods = conn.execute("SELECT period_name, start_time, end_time FROM schedule").fetchall()
                     for period_rec in periods:
                         period_start = datetime.strptime(period_rec['start_time'], '%H:%M').time()
                         period_end = datetime.strptime(period_rec['end_time'], '%H:%M').time()
                         if period_start <= local_now_time <= period_end:
                             active_period_name = period_rec['period_name']
                             break
+
+                # Cache results for frame skipping
+                cache['results'] = results
+                cache['period'] = active_period_name
 
                 socketio_instance.emit('recognition_result', {
                     'status': 'success',
@@ -783,8 +815,19 @@ def register_socketio_handlers(socketio_instance):
             finally:
                 conn.close()
 
+                # Cleanup references to free memory immediately
+                if 'img' in locals(): del img
+                if 'small_img' in locals(): del small_img
+                if 'rgb_small_img' in locals(): del rgb_small_img
+                if 'gray_img' in locals(): del gray_img
+                if 'np_arr' in locals(): del np_arr
+                if 'img_data' in locals(): del img_data
+                if 'encodings' in locals(): del encodings
+                gc.collect()
+
             end_total_time = time.time()
-            print(f"Total frame processing time: {(end_total_time - start_total_time)*1000:.2f} ms")
+            if current_app.debug:
+                print(f"Total frame processing time: {(end_total_time - start_total_time)*1000:.2f} ms")
 
         except Exception as e:
             print(f"Top-level error in handle_image_from_client: {e}")

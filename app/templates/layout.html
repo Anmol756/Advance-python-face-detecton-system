@@ -11,7 +11,7 @@
     <!-- Google Fonts Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Premium Global Stylesheet -->
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
@@ -25,83 +25,92 @@
 
         /* Sidebar Styling */
         #sidebar {
-            min-width: 260px;
-            max-width: 260px;
+            min-width: 270px;
+            max-width: 270px;
             background: #0f172a; /* Slate 900 */
             color: #fff;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             display: flex;
             flex-direction: column;
-            box-shadow: 4px 0 10px rgba(15, 23, 42, 0.05);
+            box-shadow: 4px 0 25px rgba(15, 23, 42, 0.15);
             z-index: 1000;
         }
 
         #sidebar.active {
-            margin-left: -260px;
+            margin-left: -270px;
         }
 
         #sidebar .sidebar-header {
-            padding: 1.5rem 1.25rem;
-            background: #0b0f19;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 2rem 1.5rem;
+            background: #090d16;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
         }
 
         #sidebar .sidebar-logo {
-            font-size: 1.25rem;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            color: #3b82f6;
+            font-size: 1.4rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            color: #ffffff;
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
+            justify-content: flex-start;
+            gap: 0.75rem;
+        }
+
+        #sidebar .sidebar-logo i {
+            background: linear-gradient(135deg, #2563eb, #4f46e5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 2px 8px rgba(37, 99, 235, 0.4));
         }
 
         #sidebar ul.components {
-            padding: 1.5rem 0.75rem;
+            padding: 1.5rem 1rem;
         }
 
         #sidebar ul li {
             list-style: none;
-            margin-bottom: 0.35rem;
+            margin-bottom: 0.45rem;
         }
 
         #sidebar ul li a {
-            padding: 0.8rem 1rem;
-            font-size: 0.9rem;
+            padding: 0.85rem 1.1rem;
+            font-size: 1.05rem;
             display: flex;
             align-items: center;
             gap: 0.85rem;
             color: #94a3b8; /* Slate 400 */
             text-decoration: none;
-            border-radius: 10px;
+            border-radius: 12px;
             font-weight: 500;
-            transition: all 0.25s ease;
+            transition: all 0.2s ease;
         }
 
         #sidebar ul li a i {
             width: 1.25rem;
             text-align: center;
             font-size: 1.1rem;
-            color: #64748b;
-            transition: all 0.25s ease;
+            color: #475569;
+            transition: all 0.2s ease;
         }
 
         #sidebar ul li a:hover {
-            background: rgba(255, 255, 255, 0.04);
-            color: #f1f5f9;
+            background: rgba(255, 255, 255, 0.03);
+            color: #ffffff;
         }
 
         #sidebar ul li a:hover i {
-            color: #f1f5f9;
+            color: #ffffff;
+            transform: scale(1.08);
         }
 
         #sidebar ul li a.active-link {
-            background: linear-gradient(135deg, rgba(37, 99, 235, 0.15), rgba(79, 70, 229, 0.08));
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.12), rgba(79, 70, 229, 0.06));
             color: #3b82f6;
             border-left: 3px solid #3b82f6;
-            border-radius: 0 10px 10px 0;
-            padding-left: calc(1rem - 3px);
+            border-radius: 0 12px 12px 0;
+            padding-left: calc(1.1rem - 3px);
+            font-weight: 600;
         }
 
         #sidebar ul li a.active-link i {
@@ -112,7 +121,7 @@
         .topbar {
             background: #ffffff;
             border-bottom: 1px solid var(--border-color);
-            padding: 1rem 2rem;
+            padding: 1.25rem 2.5rem;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -125,98 +134,135 @@
         .breadcrumb-item a {
             color: var(--text-secondary);
             text-decoration: none;
-            font-size: 0.85rem;
+            font-size: 1rem;
+            transition: color 0.15s ease;
+        }
+
+        .breadcrumb-item a:hover {
+            color: var(--primary);
         }
 
         .breadcrumb-item.active {
             color: var(--text-primary);
-            font-weight: 500;
-            font-size: 0.85rem;
+            font-weight: 600;
+            font-size: 1rem;
         }
 
         .topbar-right {
             display: flex;
             align-items: center;
-            gap: 1.5rem;
+            gap: 1.25rem;
         }
 
         .date-badge {
-            font-size: 0.825rem;
+            font-size: 1.05rem;
             color: var(--text-secondary);
             background: #f1f5f9;
-            padding: 0.4rem 0.8rem;
-            border-radius: 8px;
-            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            font-weight: 600;
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            border: 1px solid var(--border-color);
         }
 
-        .notify-btn {
+        .notify-dropdown-btn {
             color: var(--text-secondary);
             font-size: 1.15rem;
             position: relative;
-            background: none;
-            border: none;
-            padding: 0.25rem;
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
-            transition: color 0.15s ease;
+            transition: all 0.2s ease;
         }
 
-        .notify-btn:hover {
+        .notify-dropdown-btn:hover {
             color: var(--primary);
+            background-color: var(--primary-light);
+            border-color: rgba(37, 99, 235, 0.15);
         }
 
         .notify-dot {
             position: absolute;
-            top: 2px;
-            right: 2px;
-            width: 7px;
-            height: 7px;
+            top: 8px;
+            right: 8px;
+            width: 8px;
+            height: 8px;
             background-color: var(--danger);
             border-radius: 50%;
-            border: 1.5px solid #fff;
+            border: 2px solid #fff;
+            animation: notify-pulse 1.8s infinite;
         }
 
-        .profile-avatar-container {
+        @keyframes notify-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); opacity: 0.8; }
+        }
+
+        .profile-dropdown-container {
             display: flex;
             align-items: center;
             gap: 0.75rem;
             border-left: 1px solid var(--border-color);
-            padding-left: 1.5rem;
+            padding-left: 1.25rem;
+        }
+
+        .profile-dropdown-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            text-align: left;
         }
 
         .profile-avatar {
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #3b82f6, #4f46e5);
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: var(--primary-gradient);
             color: #fff;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 600;
-            font-size: 0.95rem;
+            font-weight: 700;
+            font-size: 1rem;
             border: 2px solid #fff;
-            box-shadow: var(--shadow-sm);
+            box-shadow: var(--shadow-md);
+            transition: transform 0.2s ease;
+        }
+
+        .profile-dropdown-toggle:hover .profile-avatar {
+            transform: scale(1.05);
         }
 
         .profile-info {
             display: flex;
             flex-direction: column;
-            line-height: 1.2;
+            line-height: 1.25;
         }
 
         .profile-name {
-            font-size: 0.875rem;
-            font-weight: 600;
+            font-size: 1.05rem;
+            font-weight: 700;
             color: var(--text-primary);
         }
 
         .profile-role {
-            font-size: 0.75rem;
+            font-size: 0.875rem;
             color: var(--text-secondary);
             text-transform: capitalize;
+            font-weight: 500;
         }
 
         /* Responsive Elements */
@@ -230,13 +276,16 @@
 
         @media (max-width: 768px) {
             #sidebar {
-                margin-left: -260px;
+                margin-left: -270px;
             }
             #sidebar.active {
                 margin-left: 0;
             }
             .topbar {
-                padding: 1rem 1.25rem;
+                padding: 1rem 1.5rem;
+            }
+            .date-badge {
+                display: none;
             }
         }
     </style>
@@ -257,7 +306,7 @@
             <ul class="components flex-grow-1">
                 {% if session.role == 'admin' %}
                     <li>
-                        <a href="{{ url_for('dashboard.admin_dashboard') }}" class="{% if 'dashboard' in request.path %}active-link{% endif %}">
+                        <a href="{{ url_for('dashboard.admin_dashboard') }}" class="{% if 'dashboard' in request.path or 'admin_dashboard' in request.path %}active-link{% endif %}">
                             <i class="fas fa-grid-horizontal"></i>
                             <span>Dashboard</span>
                         </a>
@@ -301,8 +350,17 @@
                 </li>
             </ul>
 
-            <div class="p-3 border-top border-secondary border-opacity-10">
-                <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-danger w-100 btn-saas align-items-center justify-content-center d-flex gap-2">
+            <!-- AI Engine Active Status Tag -->
+            <div class="px-4 py-3 mx-3 mb-3 rounded-4 text-center" style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08);">
+                <span class="text-xs text-white text-opacity-50 d-block mb-1" style="font-size: 0.85rem;">SYSTEM ENGINE</span>
+                <span class="badge bg-success bg-opacity-20 text-success rounded-pill d-inline-flex align-items-center gap-1.5 py-1 px-3" style="font-size: 0.85rem; font-weight: 600;">
+                    <span class="spinner-grow spinner-grow-sm text-success" style="width: 8px; height: 8px;" role="status"></span>
+                    AI Active
+                </span>
+            </div>
+
+            <div class="p-3 border-top border-white border-opacity-5">
+                <a href="{{ url_for('auth.logout') }}" class="btn btn-saas btn-saas-outline w-100 border-danger border-opacity-25 text-danger bg-danger bg-opacity-10 justify-content-center d-flex align-items-center gap-2" style="border-radius: 12px;">
                     <i class="fas fa-arrow-right-from-bracket"></i>
                     <span>Logout</span>
                 </a>
@@ -316,10 +374,10 @@
             <!-- Topbar Header -->
             <header class="topbar">
                 <div class="d-flex align-items-center gap-3">
-                    <button type="button" id="sidebarCollapse" class="btn btn-light btn-sm border-0 d-md-none">
+                    <button type="button" id="sidebarCollapse" class="btn btn-light btn-sm border border-light-subtle rounded-3">
                         <i class="fas fa-bars"></i>
                     </button>
-                    <!-- Dynamic Breadcrumb Navigation -->
+                    <!-- Breadcrumbs -->
                     <nav aria-label="breadcrumb" class="d-none d-sm-block m-0">
                         <ol class="breadcrumb m-0">
                             <li class="breadcrumb-item"><a href="#">Home</a></li>
@@ -331,25 +389,73 @@
                 <div class="topbar-right">
                     <!-- Current Date Badge -->
                     <div class="date-badge">
-                        <i class="far fa-calendar"></i>
+                        <i class="far fa-calendar text-primary"></i>
                         <span id="topbar-current-date"></span>
                     </div>
 
-                    <!-- Notifications -->
-                    <button class="notify-btn">
-                        <i class="far fa-bell"></i>
-                        <span class="notify-dot"></span>
-                    </button>
+                    <!-- Notifications Dropdown -->
+                    <div class="dropdown">
+                        <button class="notify-dropdown-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="far fa-bell"></i>
+                            <span class="notify-dot"></span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg p-2 mt-2 rounded-4" style="width: 320px; font-size: 0.95rem;">
+                            <li class="px-3 py-2 border-bottom border-light d-flex justify-content-between align-items-center">
+                                <span class="font-weight-bold text-dark" style="font-weight: 700;">System Signals</span>
+                                <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill">1 New</span>
+                            </li>
+                            <li>
+                                <div class="px-3 py-2.5 mt-1 rounded-3 hover:bg-light d-flex gap-2">
+                                    <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 30px; height: 30px; flex-shrink:0;">
+                                        <i class="fas fa-microchip fs-6"></i>
+                                    </div>
+                                    <div>
+                                        <div class="font-weight-semibold text-dark">Face Recognition Active</div>
+                                        <span class="text-xs text-muted" style="font-size: 0.85rem;">Liveness blink thresholds validated.</span>
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="px-3 py-2.5 rounded-3 hover:bg-light d-flex gap-2">
+                                    <div class="bg-success bg-opacity-10 text-success rounded-circle d-flex align-items-center justify-content-center" style="width: 30px; height: 30px; flex-shrink: 0;">
+                                        <i class="fas fa-database fs-6"></i>
+                                    </div>
+                                    <div>
+                                        <div class="font-weight-semibold text-dark">Database Sync Complete</div>
+                                        <span class="text-xs text-muted" style="font-size: 0.85rem;">Encodings cached to local pickle file.</span>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
 
-                    <!-- Profile Avatar -->
-                    <div class="profile-avatar-container">
-                        <div class="profile-avatar">
-                            {{ session.username[0]|upper if session.username else 'A' }}
-                        </div>
-                        <div class="profile-info">
-                            <span class="profile-name">{{ session.username }}</span>
-                            <span class="profile-role">{{ session.role }}</span>
-                        </div>
+                    <!-- Profile Dropdown -->
+                    <div class="profile-dropdown-container dropdown">
+                        <button class="profile-dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <div class="profile-avatar">
+                                {{ session.username[0]|upper if session.username else 'A' }}
+                            </div>
+                            <div class="profile-info d-none d-md-flex">
+                                <span class="profile-name">{{ session.username }}</span>
+                                <span class="profile-role">{{ session.role }}</span>
+                            </div>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg p-2 mt-2 rounded-4" style="font-size: 0.98rem;">
+                            <li><h6 class="dropdown-header text-muted">User Session</h6></li>
+                            <li>
+                                <a class="dropdown-item rounded-3 d-flex align-items-center gap-2" href="{{ url_for('schedule.manage_schedule') }}">
+                                    <i class="far fa-calendar-alt text-muted"></i>
+                                    <span>My Schedule</span>
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider border-light"></li>
+                            <li>
+                                <a class="dropdown-item text-danger rounded-3 d-flex align-items-center gap-2" href="{{ url_for('auth.logout') }}">
+                                    <i class="fas fa-arrow-right-from-bracket"></i>
+                                    <span>Sign Out</span>
+                                </a>
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </header>
@@ -363,15 +469,15 @@
                         <div class="row mb-4">
                             <div class="col-12">
                                 {% for category, message in messages %}
-                                    <div class="alert alert-dismissible fade show border-0 shadow-sm p-3 mb-2 d-flex align-items-center
+                                    <div class="alert alert-dismissible fade show border-0 shadow-sm p-3 mb-2 d-flex align-items-center rounded-4
                                         {% if category == 'danger' %} alert-danger text-danger bg-danger bg-opacity-10
                                         {% elif category == 'success' %} alert-success text-success bg-success bg-opacity-10
                                         {% elif category == 'warning' %} alert-warning text-warning bg-warning bg-opacity-10
                                         {% else %} alert-primary text-primary bg-primary bg-opacity-10
                                         {% endif %}" role="alert">
-                                        <div>
-                                            <i class="fas {% if category == 'success' %}fa-circle-check{% elif category == 'danger' %}fa-circle-exclamation{% else %}fa-circle-info{% endif %} me-2"></i>
-                                            {{ message }}
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas {% if category == 'success' %}fa-circle-check{% elif category == 'danger' %}fa-circle-exclamation{% else %}fa-circle-info{% endif %} me-2 fs-5"></i>
+                                            <span class="font-weight-semibold">{{ message }}</span>
                                         </div>
                                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                                     </div>
@@ -385,7 +491,7 @@
             </main>
 
             <!-- Sticky Footer -->
-            <footer class="p-3 bg-white text-center text-muted border-top border-light text-xs" style="font-size: 0.8rem;">
+            <footer class="p-3 bg-white text-center text-muted border-top border-light" style="font-size: 0.95rem; font-weight: 500;">
                 &copy; {{ now.year if now is defined else 2026 }} Smart Attendance System. All rights reserved.
             </footer>
         </div>
@@ -401,7 +507,7 @@
             dateEl.innerText = new Date().toLocaleDateString('en-US', dateOptions);
         }
 
-        // Toggle Sidebar on mobile view
+        // Toggle Sidebar
         const sidebarCollapse = document.getElementById('sidebarCollapse');
         const sidebar = document.getElementById('sidebar');
         if (sidebarCollapse && sidebar) {

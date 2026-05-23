@@ -1,40 +1,54 @@
-/* Premium SaaS Style System for Smart Attendance System */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+/* Premium AI SaaS Style System */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 :root {
     --primary: #2563eb;
+    --primary-light: #eff6ff;
     --primary-gradient: linear-gradient(135deg, #2563eb, #3b82f6);
     --accent: #4f46e5;
+    --accent-light: #eef2ff;
     --accent-gradient: linear-gradient(135deg, #4f46e5, #6366f1);
-    --success: #22c55e;
-    --success-gradient: linear-gradient(135deg, #22c55e, #4ade80);
-    --danger: #ef4444;
-    --danger-gradient: linear-gradient(135deg, #ef4444, #f87171);
-    --warning: #f59e0b;
-    --warning-gradient: linear-gradient(135deg, #f59e0b, #fbbf24);
-    
+    --dark: #0f172a;
     --bg-main: #f8fafc;
     --card-bg: #ffffff;
+    --success: #22c55e;
+    --success-light: #f0fdf4;
+    --success-gradient: linear-gradient(135deg, #22c55e, #4ade80);
+    --danger: #ef4444;
+    --danger-light: #fef2f2;
+    --danger-gradient: linear-gradient(135deg, #ef4444, #f87171);
+    --warning: #eab308;
+    --warning-light: #fefcbf;
     --text-primary: #0f172a;
     --text-secondary: #64748b;
     --border-color: #e2e8f0;
     
-    --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.05);
-    --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.05), 0 2px 4px -2px rgba(15, 23, 42, 0.05);
-    --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.05), 0 4px 6px -4px rgba(15, 23, 42, 0.05);
-    --shadow-premium: 0 20px 25px -5px rgba(15, 23, 42, 0.04), 0 10px 10px -5px rgba(15, 23, 42, 0.04);
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+    --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.04), 0 4px 6px -4px rgba(15, 23, 42, 0.04);
+    --shadow-premium: 0 20px 25px -5px rgba(15, 23, 42, 0.06), 0 10px 10px -5px rgba(15, 23, 42, 0.04);
+}
+
+html {
+    font-size: 18px; /* Globally scale all rem elements up */
 }
 
 body {
     font-family: 'Inter', sans-serif;
+    font-size: 1rem;
     background-color: var(--bg-main);
     color: var(--text-primary);
     overflow-x: hidden;
 }
 
+/* Ensure all small elements are medium/readable */
+small, .small {
+    font-size: 0.95rem !important;
+}
+
 /* Page Entrance Animation */
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(8px); }
+    from { opacity: 0; transform: translateY(6px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
@@ -69,19 +83,26 @@ body {
 }
 
 .glass-card {
-    background: rgba(255, 255, 255, 0.75);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.7) !important;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.4) !important;
+    border-radius: 20px;
     box-shadow: var(--shadow-lg);
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-premium);
+    border-color: rgba(255, 255, 255, 0.6) !important;
 }
 
 /* Typography Custom Rules */
 h1, h2, h3, h4, h5, h6 {
     font-weight: 600;
     color: var(--text-primary);
+    letter-spacing: -0.5px;
 }
 
 /* Table Refinement */
@@ -95,59 +116,101 @@ h1, h2, h3, h4, h5, h6 {
 
 .saas-table {
     margin-bottom: 0;
+    border-collapse: separate;
+    border-spacing: 0;
 }
 
 .saas-table th {
-    background-color: #f1f5f9;
+    background-color: #f8fafc;
     color: var(--text-secondary);
     font-weight: 600;
     text-transform: uppercase;
-    font-size: 0.75rem;
-    letter-spacing: 0.05em;
-    padding: 1rem 1.25rem;
+    font-size: 0.925rem;
+    letter-spacing: 0.06em;
+    padding: 1.1rem 1.25rem;
     border-bottom: 1px solid var(--border-color);
+    position: sticky;
+    top: 0;
+    z-index: 10;
 }
 
 .saas-table td {
-    padding: 1rem 1.25rem;
+    padding: 1.1rem 1.25rem;
     vertical-align: middle;
     color: var(--text-primary);
     border-bottom: 1px solid var(--border-color);
-    font-size: 0.875rem;
+    font-size: 1.05rem;
+    background-color: var(--card-bg);
+    transition: background-color 0.2s ease;
 }
 
 .saas-table tbody tr {
-    transition: background-color 0.15s ease;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.saas-table tbody tr:hover td {
+    background-color: var(--primary-light) !important;
 }
 
 .saas-table tbody tr:hover {
-    background-color: #f8fafc;
+    transform: scale(1.002);
+}
+
+/* Zebra row styling */
+.saas-table-zebra tbody tr:nth-of-type(odd) td {
+    background-color: #fafbfc;
 }
 
 /* Modern Badges */
 .badge-pill {
-    padding: 0.35em 0.8em;
-    font-weight: 500;
+    padding: 0.4em 0.85em;
+    font-weight: 600;
     border-radius: 9999px;
-    font-size: 0.75rem;
+    font-size: 0.925rem;
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
+    border: 1px solid transparent;
+}
+
+.status-indicator-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    display: inline-block;
 }
 
 .badge-present {
-    background-color: rgba(34, 197, 94, 0.1);
-    color: #15803d;
+    background-color: var(--success-light);
+    color: #166534;
+    border-color: rgba(34, 197, 94, 0.2);
+}
+
+.badge-present .status-indicator-dot {
+    background-color: var(--success);
+    box-shadow: 0 0 8px var(--success);
 }
 
 .badge-absent {
-    background-color: rgba(239, 68, 68, 0.1);
-    color: #b91c1c;
+    background-color: var(--danger-light);
+    color: #991b1b;
+    border-color: rgba(239, 68, 68, 0.2);
+}
+
+.badge-absent .status-indicator-dot {
+    background-color: var(--danger);
+    box-shadow: 0 0 8px var(--danger);
 }
 
 .badge-cooldown {
-    background-color: rgba(245, 158, 11, 0.1);
-    color: #b45309;
+    background-color: var(--warning-light);
+    color: #854d0e;
+    border-color: rgba(234, 179, 8, 0.2);
+}
+
+.badge-cooldown .status-indicator-dot {
+    background-color: var(--warning);
+    box-shadow: 0 0 8px var(--warning);
 }
 
 /* Modern Form Elements */
@@ -155,29 +218,29 @@ h1, h2, h3, h4, h5, h6 {
     border: 1.5px solid var(--border-color);
     border-radius: 12px;
     padding: 0.75rem 1rem;
-    font-size: 0.875rem;
+    font-size: 1.05rem;
     color: var(--text-primary);
     background-color: #ffffff;
-    box-shadow: none;
+    box-shadow: var(--shadow-sm);
     transition: all 0.2s ease-in-out;
 }
 
 .saas-input:focus, .saas-select:focus {
     border-color: var(--primary);
-    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
     outline: none;
 }
 
 /* Glowing Accent Elements */
 .glow-primary {
-    box-shadow: 0 4px 14px 0 rgba(37, 99, 235, 0.3);
+    box-shadow: 0 4px 14px 0 rgba(37, 99, 235, 0.25);
 }
 
 .glow-accent {
-    box-shadow: 0 4px 14px 0 rgba(79, 70, 229, 0.3);
+    box-shadow: 0 4px 14px 0 rgba(79, 70, 229, 0.25);
 }
 
-/* Sidebar Custom Scrollbar */
+/* Scrollbars */
 .custom-scrollbar::-webkit-scrollbar {
     width: 6px;
     height: 6px;
@@ -186,59 +249,96 @@ h1, h2, h3, h4, h5, h6 {
     background: transparent;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.08);
     border-radius: 9999px;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.25);
+    background: rgba(0, 0, 0, 0.16);
 }
 
 /* Button Customizations */
 .btn-saas {
     border-radius: 12px;
-    padding: 0.625rem 1.25rem;
-    font-weight: 500;
-    font-size: 0.875rem;
-    transition: all 0.2s ease;
+    padding: 0.625rem 1.35rem;
+    font-weight: 600;
+    font-size: 1.05rem;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    border: none;
+    border: 1px solid transparent;
+}
+
+.btn-saas:hover {
+    transform: translateY(-2px);
 }
 
 .btn-saas-primary {
     background: var(--primary-gradient);
-    color: white;
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+    color: white !important;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
 }
 
 .btn-saas-primary:hover {
     background: linear-gradient(135deg, #1d4ed8, #2563eb);
-    transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
-    color: white;
+    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3);
 }
 
 .btn-saas-secondary {
     background-color: #f1f5f9;
-    color: var(--text-secondary);
+    color: var(--text-secondary) !important;
+    border-color: var(--border-color);
 }
 
 .btn-saas-secondary:hover {
     background-color: #e2e8f0;
-    color: var(--text-primary);
+    color: var(--text-primary) !important;
+}
+
+.btn-saas-outline {
+    background-color: transparent;
+    color: var(--text-secondary) !important;
+    border-color: var(--border-color);
+}
+
+.btn-saas-outline:hover {
+    background-color: #f1f5f9;
+    color: var(--text-primary) !important;
+    border-color: #cbd5e1;
 }
 
 .btn-saas-accent {
     background: var(--accent-gradient);
-    color: white;
-    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+    color: white !important;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
 }
 
 .btn-saas-accent:hover {
     background: linear-gradient(135deg, #4338ca, #4f46e5);
-    transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(79, 70, 229, 0.35);
-    color: white;
+    box-shadow: 0 6px 16px rgba(79, 70, 229, 0.3);
+}
+
+/* Avatar Initials Wrapper */
+.avatar-initials {
+    border: 2px solid white;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.2s ease;
+}
+
+.avatar-initials:hover {
+    transform: scale(1.08);
+}
+
+/* Pulse animation */
+@keyframes glow-pulse {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 0 8px rgba(37, 99, 235, 0);
+    }
+}
+.pulse-glow {
+    animation: glow-pulse 2s infinite;
 }

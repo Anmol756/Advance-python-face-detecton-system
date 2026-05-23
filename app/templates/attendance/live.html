@@ -7,35 +7,61 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
 
 <div class="container-fluid px-0">
+    <!-- Top Active Indicator Banner -->
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4 bg-white p-3 rounded-4 shadow-sm border border-light">
+        <div class="d-flex align-items-center gap-2.5">
+            <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill font-weight-bold" style="font-size: 0.775rem;">
+                <i class="fas fa-microchip me-1.5 animate-pulse"></i> AI-Powered Real-Time Recognition Active
+            </span>
+            <span class="text-muted text-xs d-none d-md-inline">Engaging liveness blink checks and encoding comparisons</span>
+        </div>
+        <div class="d-flex gap-2">
+            <span id="session-info-badge" class="badge bg-light text-dark font-weight-semibold px-3 py-2 rounded-pill border" style="font-size: 0.8rem;">
+                <i class="fas fa-circle-nodes me-1 text-primary"></i> Active Stream
+            </span>
+        </div>
+    </div>
+
     <div class="row g-4">
         <!-- Live Camera Feed Column -->
         <div class="col-lg-8">
             <div class="saas-card p-4">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h4 class="h5 mb-0 font-weight-bold d-flex align-items-center">
-                        <i class="fas fa-camera text-primary me-2"></i> Live Camera Feed
+                        <i class="fas fa-camera text-primary me-2"></i> Camera Feed
                     </h4>
-                    <span id="session-info-badge" class="badge bg-primary bg-opacity-10 text-primary font-weight-semibold px-3 py-2 rounded-pill" style="font-size: 0.8rem;">
-                        <i class="fas fa-circle-nodes me-1"></i> Active Session
-                    </span>
+                    <!-- Real-time Status Badge -->
+                    <div id="status-box" class="badge bg-secondary px-3 py-2 rounded-pill font-weight-semibold align-items-center d-flex gap-2" style="font-size: 0.775rem;">
+                        <span class="status-indicator-dot bg-white rounded-circle d-inline-block" style="width: 7px; height: 7px;"></span>
+                        <span>Status: Initializing...</span>
+                    </div>
                 </div>
                 
-                <div class="position-relative w-100 rounded-4 overflow-hidden bg-dark border shadow-inner" style="aspect-ratio: 16/9; min-height: 320px;">
+                <!-- Webcam viewport container with neon scanning effect -->
+                <div class="scanner-container scanner-active position-relative w-100 rounded-4 overflow-hidden bg-dark shadow-inner" style="aspect-ratio: 16/9; min-height: 320px;">
+                    <!-- Laser Scanner Line -->
+                    <div class="scanner-laser"></div>
+                    <!-- Crosshair corners -->
+                    <div class="scanner-corner scanner-tl"></div>
+                    <div class="scanner-corner scanner-tr"></div>
+                    <div class="scanner-corner scanner-bl"></div>
+                    <div class="scanner-corner scanner-br"></div>
+
                     <video id="video" autoplay playsinline class="position-absolute top-0 start-0 w-100 h-100 object-fit-cover" style="opacity: 0; pointer-events: none; z-index: 1;"></video>
                     <canvas id="canvas" class="w-100 h-100 object-fit-cover position-relative" style="z-index: 2;"></canvas>
-                    <div id="loading" class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center bg-black bg-opacity-75 text-white p-4" style="z-index: 3;">
-                        <div class="spinner-border text-primary mb-3" role="status">
+                    
+                    <!-- Loading Skeleton Glassmorphic Overlay -->
+                    <div id="loading" class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center bg-black bg-opacity-80 text-white p-4" style="z-index: 3; backdrop-filter: blur(8px);">
+                        <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;" role="status">
                             <span class="visually-hidden">Loading...</span>
                         </div>
-                        <span class="font-weight-semibold">Starting Camera...</span>
+                        <span class="font-weight-semibold tracking-wider">INITIATING CORE AI MODULES...</span>
+                        <span class="text-xs text-white-50 mt-1" style="font-size: 0.75rem;">Requesting secure media capture...</span>
                     </div>
                 </div>
                 
                 <div class="mt-4 d-flex flex-wrap justify-content-between align-items-center gap-3">
-                    <div id="status-box" class="badge bg-secondary px-3 py-2.5 rounded-pill font-weight-semibold text-wrap align-items-center d-flex gap-2">
-                        <span class="status-indicator-dot bg-white rounded-circle d-inline-block" style="width: 8px; height: 8px;"></span>
-                        <span>Status: Initializing...</span>
-                    </div>
+                    <span class="text-muted text-xs" style="font-size: 0.8rem;"><i class="fas fa-info-circle me-1 text-primary"></i> Stand 2-3 feet from camera for optimal facial landmark alignment.</span>
                     <a href="{{ url_for('schedule.configure_session') }}" class="btn btn-saas btn-saas-outline align-items-center d-flex gap-2">
                         <i class="fas fa-sliders-h text-warning"></i>
                         <span>Change Session Filters</span>
@@ -49,17 +75,22 @@
             <div class="saas-card d-flex flex-column" style="min-height: 480px; height: 100%;">
                 <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-3">
                     <h4 class="h5 mb-0 font-weight-bold">
-                        <i class="fas fa-list-check text-primary me-2"></i> Live Scan Log
+                        <i class="fas fa-list-check text-primary me-2"></i> Scan Activity
                     </h4>
-                    <span class="badge bg-light text-secondary border rounded-pill px-2.5 py-1">Real-time</span>
+                    <!-- Session counter -->
+                    <div class="badge bg-primary bg-opacity-10 text-primary border rounded-pill px-2.5 py-1" style="font-size: 0.725rem; font-weight: 600;">
+                        <i class="fas fa-user-check me-1"></i> <span id="detected-counter">0</span> Verified
+                    </div>
                 </div>
-                <div id="live-log" class="flex-grow-1 overflow-y-auto pe-1 d-flex flex-column gap-2" style="max-height: 440px;">
+                
+                <div id="live-log" class="flex-grow-1 overflow-y-auto pe-1 d-flex flex-column gap-2 custom-scrollbar" style="max-height: 440px;">
                     <!-- Placeholder when empty -->
                     <div id="log-empty-state" class="text-center py-5 my-auto text-muted">
-                        <div class="bg-light p-3 rounded-circle d-inline-block mb-2">
-                            <i class="fas fa-radar fs-4 text-secondary"></i>
+                        <div class="bg-light p-3.5 rounded-circle d-inline-block mb-3 border border-light-subtle">
+                            <i class="fas fa-radar fs-4 text-primary animate-pulse"></i>
                         </div>
-                        <p class="small mb-0">Waiting for scans...</p>
+                        <h6 class="font-weight-bold text-dark mb-1">Awaiting Biometric Data</h6>
+                        <p class="small mb-0 text-secondary">Faces detected in feed will display here.</p>
                     </div>
                 </div>
             </div>
@@ -75,6 +106,9 @@
         const loadingDiv = document.getElementById('loading');
         const statusBox = document.getElementById('status-box');
         const liveLog = document.getElementById('live-log');
+        const detectedCounter = document.getElementById('detected-counter');
+        
+        let checkedInCount = 0;
 
         const socket = io();
         window.frameInterval = null; 
@@ -85,14 +119,14 @@
 
         socket.on('connect', () => {
             console.log('Connected to server!');
-            statusBox.textContent = 'Status: Connected';
-            statusBox.className = 'badge bg-success px-3 py-2.5 rounded-pill font-weight-semibold text-wrap align-items-center d-flex gap-2';
+            statusBox.innerHTML = '<span class="status-indicator-dot bg-success rounded-circle d-inline-block" style="width: 7px; height: 7px; box-shadow: 0 0 8px #22c55e;"></span><span>Status: Connected</span>';
+            statusBox.className = 'badge bg-success bg-opacity-10 text-success border border-success border-opacity-20 px-3 py-2 rounded-pill font-weight-semibold text-wrap align-items-center d-flex gap-2';
         });
 
         socket.on('disconnect', () => {
             console.log('Disconnected from server!');
-            statusBox.textContent = 'Status: Disconnected';
-            statusBox.className = 'badge bg-danger px-3 py-2.5 rounded-pill font-weight-semibold text-wrap align-items-center d-flex gap-2';
+            statusBox.innerHTML = '<span class="status-indicator-dot bg-danger rounded-circle d-inline-block" style="width: 7px; height: 7px; box-shadow: 0 0 8px #ef4444;"></span><span>Status: Disconnected</span>';
+            statusBox.className = 'badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-20 px-3 py-2 rounded-pill font-weight-semibold text-wrap align-items-center d-flex gap-2';
             if (window.frameInterval) clearInterval(window.frameInterval);
             if (window.videoDrawInterval) clearInterval(window.videoDrawInterval); 
             if (safetyTimeout) {
@@ -106,10 +140,11 @@
             loadingDiv.classList.remove('d-none');
             loadingDiv.classList.add('d-flex');
             loadingDiv.innerHTML = `
-                <div class="spinner-border text-primary mb-3" role="status">
+                <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;" role="status">
                     <span class="visually-hidden">Loading...</span>
                 </div>
-                <span class="font-weight-semibold">Requesting Camera Access...</span>`;
+                <span class="font-weight-semibold tracking-wider">REQUESTING SECURE CAMERA ACCESS...</span>
+                <span class="text-xs text-white-50 mt-1" style="font-size: 0.75rem;">Please click allow in your browser prompt</span>`;
             
             navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 640 }, height: { ideal: 480 } } })
                 .then(stream => {
@@ -142,20 +177,20 @@
                     };
                     video.onerror = (e) => { 
                         console.error('Video element error:', e);
-                        statusBox.textContent = 'Status: Video Error!';
-                        statusBox.className = 'badge bg-danger px-3 py-2.5 rounded-pill font-weight-semibold text-wrap align-items-center d-flex gap-2';
+                        statusBox.innerHTML = '<span class="status-indicator-dot bg-danger rounded-circle d-inline-block" style="width: 7px; height: 7px;"></span><span>Status: Video Error!</span>';
+                        statusBox.className = 'badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-20 px-3 py-2 rounded-pill font-weight-semibold text-wrap align-items-center d-flex gap-2';
                     };
                 })
                 .catch(err => {
                     console.error("Error accessing camera via getUserMedia:", err);
                     const errorMessage = `
                         <div class="text-center p-4">
-                            <div class="bg-warning bg-opacity-10 text-warning p-3 rounded-circle d-inline-block mb-3" style="width: 50px; height: 50px; line-height: 50px; text-align: center;">
+                            <div class="bg-warning bg-opacity-10 text-warning p-3.5 rounded-circle d-inline-block mb-3" style="width: 54px; height: 54px; line-height: 54px; text-align: center;">
                                 <i class="fas fa-exclamation-triangle fs-4"></i>
                             </div>
                             <h5 class="font-weight-bold text-white mb-2">Camera Access Denied</h5>
-                            <p class="text-muted small mb-4 mx-auto" style="max-width: 320px;">
-                                This application requires camera permissions. Please allow access in browser settings and make sure another app isn't using it.
+                            <p class="text-white-50 small mb-4 mx-auto" style="max-width: 320px; font-size: 0.8rem; line-height: 1.5;">
+                                This application requires camera permissions. Please allow access in browser settings and make sure another application is not using the camera.
                             </p>
                             <button id="retry-camera" class="btn btn-saas btn-saas-primary glow-primary py-2 px-4 rounded-pill">
                                 <i class="fas fa-redo-alt me-1"></i> Try Again
@@ -163,13 +198,16 @@
                         </div>`;
                     loadingDiv.innerHTML = errorMessage;
                     document.getElementById('retry-camera').addEventListener('click', startCamera);
-                    statusBox.textContent = 'Status: Camera Error!';
-                    statusBox.className = 'badge bg-danger px-3 py-2.5 rounded-pill font-weight-semibold text-wrap align-items-center d-flex gap-2';
+                    statusBox.innerHTML = '<span class="status-indicator-dot bg-danger rounded-circle d-inline-block" style="width: 7px; height: 7px;"></span><span>Status: Camera Error!</span>';
+                    statusBox.className = 'badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-20 px-3 py-2 rounded-pill font-weight-semibold text-wrap align-items-center d-flex gap-2';
                 });
         }
         
         startCamera(); 
  
+        let lastSentWidth = 640;
+        let lastSentHeight = 480;
+
         function sendFrame() {
             if (frameInFlight) return;
             if (video.readyState === video.HAVE_ENOUGH_DATA) {
@@ -177,12 +215,32 @@
                     console.warn('Video dimensions are 0, skipping frame capture.'); 
                     return; 
                 }
+                
+                // Downscale frame to a maximum dimension of 480px maintaining aspect ratio
+                const maxDim = 480;
+                let targetWidth = video.videoWidth;
+                let targetHeight = video.videoHeight;
+                if (targetWidth > maxDim || targetHeight > maxDim) {
+                    if (targetWidth > targetHeight) {
+                        targetHeight = Math.round((targetHeight * maxDim) / targetWidth);
+                        targetWidth = maxDim;
+                    } else {
+                        targetWidth = Math.round((targetWidth * maxDim) / targetHeight);
+                        targetHeight = maxDim;
+                    }
+                }
+                
+                lastSentWidth = targetWidth;
+                lastSentHeight = targetHeight;
+
                 const tempCanvas = document.createElement('canvas');
-                tempCanvas.width = video.videoWidth; 
-                tempCanvas.height = video.videoHeight; 
+                tempCanvas.width = targetWidth; 
+                tempCanvas.height = targetHeight; 
                 const tempContext = tempCanvas.getContext('2d');
                 tempContext.drawImage(video, 0, 0, tempCanvas.width, tempCanvas.height);
-                const dataURL = tempCanvas.toDataURL('image/jpeg', 0.8); 
+                
+                // Compress payload: use 0.65 JPEG compression quality
+                const dataURL = tempCanvas.toDataURL('image/jpeg', 0.65); 
                 if (socket.connected) {
                     frameInFlight = true;
                     socket.emit('image_from_client', dataURL);
@@ -201,7 +259,8 @@
         socket.on('recognition_result', (data) => {
             if (safetyTimeout) clearTimeout(safetyTimeout);
             frameInFlight = false;
-            setTimeout(sendFrame, 30);
+            // Delay next frame request by 150ms to keep CPU usage low
+            setTimeout(sendFrame, 150);
 
             console.log('Received recognition_result from server:', data); 
             if (data.status === 'success' && data.results) {
@@ -213,17 +272,17 @@
             }
 
             if (data.period) {
-                statusBox.textContent = `Period: ${data.period}`;
-                statusBox.className = 'badge bg-primary px-3 py-2.5 rounded-pill font-weight-semibold text-wrap align-items-center d-flex gap-2';
+                statusBox.innerHTML = `<span class="status-indicator-dot bg-primary rounded-circle d-inline-block" style="width: 7px; height: 7px; box-shadow: 0 0 8px #2563eb;"></span><span>Period: ${data.period}</span>`;
+                statusBox.className = 'badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-20 px-3 py-2 rounded-pill font-weight-semibold text-wrap align-items-center d-flex gap-2';
             } else {
-                statusBox.textContent = 'Period: N/A';
-                statusBox.className = 'badge bg-secondary px-3 py-2.5 rounded-pill font-weight-semibold text-wrap align-items-center d-flex gap-2';
+                statusBox.innerHTML = '<span class="status-indicator-dot bg-secondary rounded-circle d-inline-block" style="width: 7px; height: 7px;"></span><span>Period: N/A</span>';
+                statusBox.className = 'badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-20 px-3 py-2 rounded-pill font-weight-semibold text-wrap align-items-center d-flex gap-2';
             }
 
             if (data.status === 'error') {
                 console.error("Server error:", data.message);
-                statusBox.textContent = `Error: ${data.message}`;
-                statusBox.className = 'badge bg-danger px-3 py-2.5 rounded-pill font-weight-semibold text-wrap align-items-center d-flex gap-2';
+                statusBox.innerHTML = `<span class="status-indicator-dot bg-danger rounded-circle d-inline-block" style="width: 7px; height: 7px;"></span><span>Error: ${data.message}</span>`;
+                statusBox.className = 'badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-20 px-3 py-2 rounded-pill font-weight-semibold text-wrap align-items-center d-flex gap-2';
             }
         });
 
@@ -234,23 +293,29 @@
                 emptyState.remove();
             }
 
+            // Increment count
+            checkedInCount++;
+            if (detectedCounter) {
+                detectedCounter.innerText = checkedInCount;
+            }
+
             const logEntry = document.createElement('div');
             const displayGender = data.gender ? `, ${data.gender}` : '';
             const displayAge = data.age ? `, ${data.age} yrs` : '';
 
-            logEntry.className = 'd-flex align-items-start p-3 bg-success bg-opacity-10 border-start border-4 border-success rounded-3 mb-2 animate-fade-in';
+            logEntry.className = 'd-flex align-items-start p-3 bg-success bg-opacity-5 border-start border-4 border-success rounded-3 mb-2 animate-fade-in shadow-sm';
             logEntry.innerHTML = `
-                <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 32px; height: 32px; flex-shrink: 0;">
+                <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 32px; height: 32px; flex-shrink: 0; box-shadow: 0 4px 10px rgba(34, 197, 94, 0.25);">
                     <i class="fas fa-check fs-6"></i>
                 </div>
                 <div class="flex-grow-1">
                     <div class="d-flex justify-content-between align-items-center">
                         <h6 class="mb-0 font-weight-bold text-dark" style="font-size: 0.9rem;">${data.name}</h6>
-                        <span class="badge bg-success-subtle text-success rounded-pill" style="font-size: 0.7rem;">${data.roll_no}</span>
+                        <span class="badge bg-success bg-opacity-10 text-success rounded-pill" style="font-size: 0.7rem; font-weight: 600;">${data.roll_no}</span>
                     </div>
-                    <p class="mb-1 text-muted text-xs">${data.time}${displayGender}${displayAge}</p>
-                    <span class="text-success text-xs font-weight-semibold d-flex align-items-center">
-                        <i class="fas fa-circle-check me-1"></i> Attendance Logged
+                    <p class="mb-1 text-muted text-xs mt-0.5" style="font-size: 0.775rem;">${data.time}${displayGender}${displayAge}</p>
+                    <span class="text-success text-xs font-weight-semibold d-flex align-items-center gap-1" style="font-size: 0.75rem;">
+                        <i class="fas fa-circle-check"></i> Verified
                     </span>
                 </div>`;
             liveLog.prepend(logEntry);
@@ -260,9 +325,9 @@
         });
 
         function drawBoundingBoxes(results) {
-            const scaleX = canvas.width / video.videoWidth; 
-            const scaleY = canvas.height / video.videoHeight; 
-            const textPadding = 5; 
+            const scaleX = canvas.width / lastSentWidth; 
+            const scaleY = canvas.height / lastSentHeight; 
+            const textPadding = 6; 
             const lineHeight = 18; 
 
             results.forEach(res => {
@@ -306,12 +371,6 @@
 
                     // --- Liveness Status Display ---
                     if (res.liveness_status && res.liveness_status !== 'N/A') {
-                        let livenessColor = 'white'; 
-                        if (res.liveness_status.includes('Blink Detected') || res.liveness_status.includes('Eyes Open')) {
-                            livenessColor = '#CCFFCC'; 
-                        } else if (res.liveness_status.includes('Liveness Check Failed') || res.liveness_status.includes('Eyes Closed/Low EAR')) {
-                            livenessColor = '#FFCCCC'; 
-                        }
                         displayLines.push(`Liveness: ${res.liveness_status}`);
                     }
                     
@@ -354,11 +413,12 @@
                     }
                 }
 
+                // Draw rounded bounding box corners manually for neon styling
                 context.strokeStyle = color;
                 context.lineWidth = 3;
                 context.strokeRect(sLeft, sTop, sRight - sLeft, sBottom - sTop);
 
-                context.font = `${lineHeight - 2}px Inter, sans-serif`;
+                context.font = `600 ${lineHeight - 3}px Inter, sans-serif`;
                 let maxTextWidth = 0;
                 displayLines.forEach(line => {
                     const currentWidth = context.measureText(line).width;
@@ -373,13 +433,21 @@
                 const actualLeft = sLeft;
                 const actualBottom = sBottom;
 
-                context.fillStyle = color;
+                context.fillStyle = 'rgba(15, 23, 42, 0.85)';
                 context.fillRect(actualLeft, actualBottom, textBlockWidth, textBlockHeight);
                 
                 context.fillStyle = 'white';
                 context.textBaseline = 'top';
 
                 displayLines.forEach((line, index) => {
+                    // Accentuate status line if matches
+                    if (line.includes('Status:')) {
+                        context.fillStyle = color;
+                    } else if (line.includes('Liveness:')) {
+                        context.fillStyle = '#CCFFCC';
+                    } else {
+                        context.fillStyle = 'white';
+                    }
                     context.fillText(line, actualLeft + textPadding, actualBottom + textPadding + (index * lineHeight));
                 });
             });
