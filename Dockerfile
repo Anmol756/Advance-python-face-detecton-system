@@ -34,13 +34,14 @@ FROM python:3.10-slim
 
 WORKDIR /app
 
-# Install runtime-only requirements for OpenCV, MediaPipe, and Dlib
+# Install runtime requirements for OpenCV, MediaPipe, and Dlib
+# Using development meta-packages (e.g. -dev) ensures compatibility across different Debian versions (Bookworm vs Trixie)
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libopenblas3 \
-    liblapack3 \
+    libopenblas-dev \
+    liblapack-dev \
     libgl1 \
     libglx-mesa0 \
-    libglib2.0-0 \
+    libglib2.0-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy pre-compiled wheels from builder stage and install
